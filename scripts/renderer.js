@@ -39,7 +39,6 @@ class VRPlayer {
             return;
         }
         
-        // Set up event listeners
         this.sharedVideoElement.addEventListener('loadedmetadata', () => this.onVideoLoaded());
         this.sharedVideoElement.addEventListener('timeupdate', () => this.updateProgress());
         this.sharedVideoElement.addEventListener('ended', () => this.onVideoEnded());
@@ -59,7 +58,7 @@ class VRPlayer {
             console.log('Video can play');
         });
         
-        this.sharedVideoElement.volume = 0.5; // Default 50% volume
+        this.sharedVideoElement.volume = 0.5;
         this.updateVolumeDisplay();
         
         console.log('Shared video element initialized');
@@ -283,10 +282,8 @@ class VRPlayer {
                 if (this.isVRMode) {
                     e.preventDefault();
                     if (this.settings.mouseTracking) {
-                        // 如果在鼠标跟随模式，先退出跟随模式
                         this.toggleMouseTracking();
                     } else {
-                        // 如果不在鼠标跟随模式，退出VR模式
                         this.exitVRMode();
                     }
                 }
@@ -316,14 +313,12 @@ class VRPlayer {
                 }
                 break;
             case 'KeyK':
-                // Toggle mouse tracking in VR mode
                 if (this.isVRMode) {
                     e.preventDefault();
                     this.toggleMouseTracking();
                 }
                 break;
             case 'KeyI':
-                // Toggle 180/360 mode in VR
                 if (this.isVRMode) {
                     e.preventDefault();
                     this.toggleVRMode180360();
@@ -331,7 +326,6 @@ class VRPlayer {
                 break;
 
             case 'KeyC':
-                // Center to middle position in VR mode
                 if (this.isVRMode) {
                     e.preventDefault();
                     this.centerOnMiddle();
@@ -344,59 +338,33 @@ class VRPlayer {
 
     resetVRZoom() {
         this.updateVRScale(1.0);
-        console.log('VR zoom reset');
     }
 
     resetVRView() {
-        // Reset to left eye center view
         this.centerOnLeftEye();
     }
 
-    // Center view on left eye (for Side-by-Side VR videos)
     centerOnLeftEye(showStatus = true) {
-        const scene = document.querySelector('a-scene');
-        if (scene) {
-            const camera = scene.querySelector('a-camera');
-            if (camera) {
-                // For Side-by-Side VR videos, left eye is typically in left half
-                // Rotate camera to -90 degrees (look left) to center left eye
-                camera.setAttribute('rotation', '0 -90 0');
-                console.log('VR view reset to left eye center');
-                
-                if (showStatus) {
-                    this.showTrackingStatus('视角已重置到左眼中心');
-                }
-            }
-        }
+        this.setCameraRotation('0 -90 0', showStatus ? '视角已重置到左眼中心' : null);
     }
 
-    // Center view on right eye (for Side-by-Side VR videos)
     centerOnRightEye() {
-        const scene = document.querySelector('a-scene');
-        if (scene) {
-            const camera = scene.querySelector('a-camera');
-            if (camera) {
-                // For Side-by-Side VR videos, right eye is typically in right half
-                // Rotate camera to 90 degrees (look right) to center right eye
-                camera.setAttribute('rotation', '0 90 0');
-                console.log('VR view reset to right eye center');
-                
-                this.showTrackingStatus('视角已重置到右眼中心');
-            }
-        }
+        this.setCameraRotation('0 90 0', '视角已重置到右眼中心');
     }
 
-    // Center view to middle position
     centerOnMiddle() {
+        this.setCameraRotation('0 0 0', '视角已重置到中心位置');
+    }
+
+    setCameraRotation(rotation, statusMessage) {
         const scene = document.querySelector('a-scene');
         if (scene) {
             const camera = scene.querySelector('a-camera');
             if (camera) {
-                // Reset to default center position
-                camera.setAttribute('rotation', '0 0 0');
-                console.log('VR view reset to center position');
-                
-                this.showTrackingStatus('视角已重置到中心位置');
+                camera.setAttribute('rotation', rotation);
+                if (statusMessage) {
+                    this.showTrackingStatus(statusMessage);
+                }
             }
         }
     }
@@ -405,7 +373,6 @@ class VRPlayer {
         this.settings.mouseTracking = !this.settings.mouseTracking;
         this.saveSettings();
         
-        // Initialize mouse movement variables
         window.isFirstMove = true;
         window.lastMouseX = 0;
         window.lastMouseY = 0;
@@ -414,13 +381,11 @@ class VRPlayer {
         const videoControls = document.getElementById('video-controls');
         
         if (this.settings.mouseTracking) {
-            console.log('Mouse tracking enabled');
             this.showTrackingStatus('鼠标追踪: 开启');
             if (vrScene) {
                 vrScene.style.cursor = 'none';
             }
             
-            // Auto-enable pointer lock
             const canvas = document.querySelector('a-scene canvas') || document.body;
             if (canvas && canvas.requestPointerLock) {
                 canvas.requestPointerLock();
@@ -432,7 +397,6 @@ class VRPlayer {
                 videoControls.style.opacity = '1';
                 videoControls.style.transition = 'opacity 0.3s ease';
                 
-                // Clear previous event listeners
                 if (this.vrControlsMouseEnter) {
                     videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
                 }
@@ -440,7 +404,6 @@ class VRPlayer {
                     videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
                 }
                 
-                // Add new event listeners
                 this.vrControlsMouseEnter = () => {
                     videoControls.style.opacity = '1';
                     this.stopControlsAutoHide();
@@ -460,13 +423,11 @@ class VRPlayer {
                 this.startControlsAutoHide();
             }
         } else {
-            console.log('Mouse tracking disabled');
             this.showTrackingStatus('鼠标追踪: 关闭');
             if (vrScene) {
                 vrScene.style.cursor = 'default';
             }
             
-            // Auto-disable pointer lock
             if (document.pointerLockElement && document.exitPointerLock) {
                 document.exitPointerLock();
             }
@@ -477,7 +438,6 @@ class VRPlayer {
                 videoControls.style.opacity = '1';
                 videoControls.style.transition = 'opacity 0.3s ease';
                 
-                // Remove mouse enter/leave events
                 if (this.vrControlsMouseEnter) {
                     videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
                 }
@@ -485,7 +445,6 @@ class VRPlayer {
                     videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
                 }
                 
-                // Add auto-hide control for non-tracking mode
                 this.vrControlsMouseEnter = () => {
                     this.stopControlsAutoHide();
                 };
@@ -502,7 +461,6 @@ class VRPlayer {
     }
 
     showTrackingStatus(message) {
-        // Create status notification
         const statusElement = document.createElement('div');
         statusElement.style.cssText = `
             position: fixed;
@@ -522,12 +480,10 @@ class VRPlayer {
         statusElement.textContent = message;
         document.body.appendChild(statusElement);
         
-        // Show animation
         setTimeout(() => {
             statusElement.style.opacity = '1';
         }, 10);
         
-        // Auto-hide
         setTimeout(() => {
             statusElement.style.opacity = '0';
             setTimeout(() => {
@@ -539,23 +495,17 @@ class VRPlayer {
     }
 
     toggleVRMode180360() {
-        // Toggle 180/360 mode
         this.vrMode = this.vrMode === '360' ? '180' : '360';
         
-        // Update videosphere geometry
         this.updateVRModeGeometry();
         
-        // Show toggle notification
         this.showTrackingStatus(`VR 模式: ${this.vrMode}°`);
         
-        // Auto-center to left eye for 180 mode
         if (this.vrMode === '180') {
             this.centerOnLeftEye(false);
         }
         
         this.saveSettings();
-        
-        console.log(`VR mode switched to: ${this.vrMode}°`);
     }
 
 
@@ -567,49 +517,40 @@ class VRPlayer {
             return;
         }
         
-        // Get current geometry settings
         const currentGeometry = videosphere.getAttribute('geometry') || {};
         const radius = currentGeometry.radius || 500;
         
-        // Set geometry based on VR mode
         if (this.vrMode === '180') {
-            // 180 mode: only show front hemisphere
             videosphere.setAttribute('geometry', {
                 radius: radius,
-                phiLength: 180,     // Horizontal coverage 180 degrees
-                phiStart: -90,      // Start from -90 degrees (front center)
-                thetaLength: 180,   // Vertical coverage 180 degrees
-                thetaStart: 0       // Start from top
+                phiLength: 180,
+                phiStart: -90,
+                thetaLength: 180,
+                thetaStart: 0
             });
         } else {
-            // 360 mode: show full sphere
             videosphere.setAttribute('geometry', {
                 radius: radius,
-                phiLength: 360,     // Horizontal coverage 360 degrees
-                phiStart: 0,        // Start from 0 degrees
-                thetaLength: 180,   // Vertical coverage 180 degrees (full hemisphere)
-                thetaStart: 0       // Start from top
+                phiLength: 360,
+                phiStart: 0,
+                thetaLength: 180,
+                thetaStart: 0
             });
         }
         
-        // Apply mono mode texture mapping (left half only for SBS format)
         setTimeout(() => {
             this.applyMonoMode(videosphere);
         }, 100);
         
-        // Set basic material properties
         videosphere.setAttribute('material', {
             shader: 'flat'
         });
         
         this.updateVRModeStatus();
         
-        // Auto-center to left eye for 180 mode
         if (this.vrMode === '180') {
             this.centerOnLeftEye(false);
         }
-        
-        console.log(`VR geometry updated to ${this.vrMode}° mode (mono display)`);
     }
 
     updateVRModeStatus() {
@@ -621,17 +562,14 @@ class VRPlayer {
         }
         
         if (vrModeIndicator) {
-            // Remove all mode style classes
             vrModeIndicator.classList.remove('mode-180', 'mode-360', 'mode-mono', 'mode-sbs', 'mode-tb');
             
-            // Add current mode style class
             if (this.vrMode === '180') {
                 vrModeIndicator.classList.add('mode-180');
             } else {
                 vrModeIndicator.classList.add('mode-360');
             }
             
-            // Add mono mode style class
             vrModeIndicator.classList.add('mode-mono');
         }
     }
@@ -641,8 +579,6 @@ class VRPlayer {
 
 
     async loadVideo(filePath) {
-        console.log('Loading video:', filePath);
-        
         if (!this.sharedVideoElement) {
             console.error('Shared video element not initialized');
             return;
@@ -652,35 +588,24 @@ class VRPlayer {
             this.currentVideo = filePath;
             this.sharedVideoElement.src = `file://${filePath}`;
             
-            // Detect if it's a VR video by filename
             const isVRByName = this.isVRVideo(filePath);
             
-            // Auto-enter VR mode if VR video detected by filename
             if (isVRByName) {
-                console.log('VR video detected by filename, preparing to enter VR mode');
-                
-                // Auto-detect and set VR mode (180 or 360 degrees)
                 const detectedMode = this.detectVRMode(filePath);
                 this.vrMode = detectedMode;
-                console.log(`Auto-set VR mode to: ${this.vrMode}°`);
                 
-                // Delay to ensure video loads
                 setTimeout(() => {
                     if (!this.isVRMode) {
-                        console.log('Auto-entering VR mode');
                         this.enterVRMode();
                     } else {
-                        // If already in VR mode, update geometry
                         this.updateVRModeGeometry();
                     }
                 }, 500);
             }
             
-            // Check again after video metadata loads
             this.sharedVideoElement.addEventListener('loadedmetadata', () => {
                 if (!isVRByName && this.checkVideoResolution()) {
                     console.log('VR video detected by resolution, preparing to enter VR mode');
-                    // Use default VR mode settings for resolution-detected videos
                     setTimeout(() => {
                         if (!this.isVRMode) {
                             console.log('Auto-entering VR mode');
@@ -690,7 +615,6 @@ class VRPlayer {
                 }
             }, { once: true });
             
-            // Update VR video source if in VR mode
             if (this.isVRMode) {
                 this.updateVRVideoSource();
             }
@@ -698,10 +622,8 @@ class VRPlayer {
             this.showVideoPlayer();
             this.addToPlaylist(filePath);
             
-            // Auto-play
             this.play();
             
-            console.log('Video loaded successfully');
         } catch (error) {
             console.error('Error loading video:', error);
         }
@@ -733,16 +655,10 @@ class VRPlayer {
             return;
         }
         
-        console.log('togglePlayPause called');
-        console.log('VR mode:', this.isVRMode);
-        console.log('Video paused state:', this.sharedVideoElement.paused);
-        
         try {
             if (this.sharedVideoElement.paused) {
-                console.log('Video paused, starting playback');
                 this.play();
             } else {
-                console.log('Video playing, pausing');
                 this.pause();
             }
         } catch (error) {
@@ -755,9 +671,6 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
-        console.log('play method called');
-        console.log('VR mode:', this.isVRMode);
         
         try {
             const playPromise = this.sharedVideoElement.play();
@@ -772,7 +685,6 @@ class VRPlayer {
                     this.updatePlayButton();
                 });
             } else {
-                // If no Promise returned, update state directly
                 this.isPlaying = true;
                 this.updatePlayButton();
             }
@@ -789,9 +701,6 @@ class VRPlayer {
             return;
         }
         
-        console.log('pause method called');
-        console.log('VR mode:', this.isVRMode);
-        
         try {
             this.sharedVideoElement.pause();
             this.isPlaying = false;
@@ -807,8 +716,6 @@ class VRPlayer {
             return;
         }
         
-        console.log('stop method called');
-        
         try {
             this.sharedVideoElement.pause();
             this.sharedVideoElement.currentTime = 0;
@@ -816,15 +723,12 @@ class VRPlayer {
             this.updatePlayButton();
             this.updateProgress();
             
-            // Return to main interface after stopping
             this.showPlaceholder();
             
-            // Exit VR mode if currently in VR
             if (this.isVRMode) {
                 this.exitVRMode();
             }
             
-            console.log('Video stopped and returned to main interface');
         } catch (error) {
             console.error('Error stopping video:', error);
         }
@@ -922,7 +826,6 @@ class VRPlayer {
     }
 
     toggleFullscreen() {
-        // Select container based on current mode
         let container;
         if (this.isVRMode) {
             container = document.getElementById('vr-scene');
@@ -941,7 +844,6 @@ class VRPlayer {
         }
     }
 
-    // Handle fullscreen state changes
     handleFullscreenChange() {
         const isFullscreen = !!(document.fullscreenElement || 
                                document.webkitFullscreenElement || 
@@ -1081,28 +983,22 @@ class VRPlayer {
         }
     }
 
-    // Start auto-hide controls
     startControlsAutoHide() {
         if (!this.isFullscreen && !this.isVRMode) return;
         
-        // Clear previous timer
         this.clearControlsHideTimer();
         
-        // Show controls
         this.showControls();
         
-        // Set new timer
         this.controlsHideTimer = setTimeout(() => {
             this.hideControls();
         }, this.controlsHideDelay);
     }
 
-    // Stop auto-hide controls
     stopControlsAutoHide() {
         this.clearControlsHideTimer();
     }
 
-    // Clear hide timer
     clearControlsHideTimer() {
         if (this.controlsHideTimer) {
             clearTimeout(this.controlsHideTimer);
@@ -1110,24 +1006,20 @@ class VRPlayer {
         }
     }
 
-    // Show controls
     showControls() {
         const videoControls = document.getElementById('video-controls');
         if (videoControls) {
             if (this.isVRMode) {
-                // VR mode display logic
                 videoControls.style.opacity = '1';
                 videoControls.style.visibility = 'visible';
                 videoControls.style.pointerEvents = 'auto';
                 this.controlsVisible = true;
             } else {
-                // Normal mode display logic
                 videoControls.classList.remove('hidden');
                 this.controlsVisible = true;
             }
         }
         
-        // Show mouse cursor
         if (this.isFullscreen && !this.isVRMode) {
             document.body.style.cursor = 'default';
         } else if (this.isVRMode && !this.settings.mouseTracking) {
@@ -1135,26 +1027,22 @@ class VRPlayer {
         }
     }
 
-    // Hide controls
     hideControls() {
         if (!this.isFullscreen && !this.isVRMode) return;
 
         const videoControls = document.getElementById('video-controls');
         if (videoControls) {
             if (this.isVRMode) {
-                // VR mode hide logic - completely hide regardless of tracking
-                videoControls.style.opacity = '0'; // Completely hidden
+                videoControls.style.opacity = '0';
                 console.log('VR mode: Set controls to completely hidden (0)');
                 this.controlsVisible = false;
             } else {
-                // Normal fullscreen mode hide logic
                 videoControls.classList.add('hidden');
                 this.controlsVisible = false;
                 console.log('Fullscreen mode: Added hidden class');
             }
         }
         
-        // Hide mouse cursor
         if (this.isFullscreen && !this.isVRMode) {
             document.body.style.cursor = 'none';
         } else if (this.isVRMode && this.settings.mouseTracking) {
@@ -1183,59 +1071,47 @@ class VRPlayer {
         this.startControlsAutoHide();
     }
 
-    // Handle mouse interaction events
     handleMouseInteraction(e) {
-        // Handle mouse side buttons for seek forward/backward
-        if (e.button === 4) { // Mouse back button (usually left side button)
+        if (e.button === 4) {
             e.preventDefault();
-            this.seekRelative(-10); // Seek backward 10 seconds
+            this.seekRelative(-10);
             console.log('Mouse back button: seeking backward 10 seconds');
             return;
         }
-        if (e.button === 3) { // Mouse forward button (usually right side button)
+        if (e.button === 3) {
             e.preventDefault();
-            this.seekRelative(10); // Seek forward 10 seconds
+            this.seekRelative(10);
             console.log('Mouse forward button: seeking forward 10 seconds');
             return;
         }
         
         if (!this.isFullscreen && !this.isVRMode) return;
         
-        // Restart auto-hide timer
         this.startControlsAutoHide();
     }
 
-    // Handle keyboard interaction events
     handleKeyInteraction(e) {
         if (!this.isFullscreen && !this.isVRMode) return;
         
-        // Restart auto-hide timer
         this.startControlsAutoHide();
     }
     
-    // Handle pointer lock state changes
     handlePointerLockChange() {
-        // 当pointer lock状态改变时，同步鼠标跟随模式状态
         const isPointerLocked = document.pointerLockElement !== null;
         
         if (this.isVRMode && this.settings.mouseTracking && !isPointerLocked) {
-            // 如果在VR模式且鼠标跟随模式开启，但pointer lock被退出了
-            // 这通常发生在用户按ESC键时，浏览器自动退出pointer lock
             console.log('Pointer lock exited, disabling mouse tracking');
             this.settings.mouseTracking = false;
             this.saveSettings();
             this.showTrackingStatus('鼠标追踪: 关闭');
             
-            // 恢复光标
             const vrScene = document.getElementById('vr-scene');
             if (vrScene) {
                 vrScene.style.cursor = 'default';
             }
             
-            // 重新配置控件事件
             const videoControls = document.getElementById('video-controls');
             if (videoControls) {
-                // 移除之前的事件监听器
                 if (this.vrControlsMouseEnter) {
                     videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
                 }
@@ -1243,7 +1119,6 @@ class VRPlayer {
                     videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
                 }
                 
-                // 为非跟踪模式添加事件监听器
                 this.vrControlsMouseEnter = () => {
                     this.stopControlsAutoHide();
                 };
@@ -1267,212 +1142,138 @@ class VRPlayer {
         }
     }
 
-    // Enter VR mode
     enterVRMode() {
         document.body.classList.add('vr-mode');
         this.isVRMode = true;
         
-        // Use toggleMouseTracking to ensure all related functionality is activated
         this.settings.mouseTracking = false;
         this.toggleMouseTracking();
 
-        // Hide specific main interface elements, but keep toolbar
-        const videoContainer = document.getElementById('video-container');
-        const fileList = document.getElementById('file-list');
-        const settingsPanel = document.getElementById('settings-panel');
+        this.hideMainInterface();
         
-        if (videoContainer) {
-            videoContainer.style.display = 'none';
-        }
-        if (fileList) {
-            fileList.style.display = 'none';
-        }
-        if (settingsPanel) {
-            settingsPanel.style.display = 'none';
-        }
-        
-        // Show VR scene
         const vrScene = document.getElementById('vr-scene');
         if (vrScene) {
             vrScene.style.display = 'block';
+            vrScene.offsetHeight;
         }
         
-        // Ensure toolbar remains visible in VR mode
-        const toolbar = document.querySelector('.toolbar');
-        if (toolbar) {
-            toolbar.style.display = 'flex';
-        }
-        
-        // Force layout recalculation
-        if (vrScene) {
-            vrScene.offsetHeight; // Trigger reflow
-        }
-        
-        // Initialize VR mode if not already initialized
         if (!window.vrScene) {
-            console.log('Initializing VR mode...');
             initVRMode();
         }
 
-
-
-        // Move controls to VR scene container
-        const videoControls = document.getElementById('video-controls');
-        const vrControlsContainer = document.getElementById('vr-controls-container');
+        this.setupVRControls();
         
-        if (videoControls && vrControlsContainer) {
-            // Move controls to VR container
-            vrControlsContainer.appendChild(videoControls);
-            console.log('Controls moved to VR scene container');
-            
-            // Always show controls, but adjust opacity and interaction based on tracking mode
-            videoControls.style.display = 'block';
-            videoControls.style.visibility = 'visible';
-            videoControls.style.pointerEvents = 'auto';
-            
-            // Set basic display properties for VR mode
-            videoControls.style.opacity = '1';
-            videoControls.style.transition = 'opacity 0.3s ease';
-            
-            if (this.settings.mouseTracking) {
-                // Tracking mode: create mouse enter/leave event listeners
-                this.vrControlsMouseEnter = () => {
-                    videoControls.style.opacity = '1';
-                    this.stopControlsAutoHide();
-                };
-                this.vrControlsMouseLeave = () => {
-                    if (this.controlsVisible) {
-                        videoControls.style.opacity = '1';
-                    } else {
-                        videoControls.style.opacity = '0';
-                    }
-                    this.startControlsAutoHide();
-                };
-                
-                // Add mouse enter/leave events
-                videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
-                videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
-                
-                vrScene.style.cursor = 'none';
-                console.log('Mouse tracking enabled, controls visible');
-            } else {
-                // Non-tracking mode: add auto-hide control
-                this.vrControlsMouseEnter = () => {
-                    this.stopControlsAutoHide();
-                };
-                this.vrControlsMouseLeave = () => {
-                    this.startControlsAutoHide();
-                };
-                
-                videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
-                videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
-                
-                vrScene.style.cursor = 'default';
-                console.log('Mouse tracking disabled, controls visible');
-            }
-            
-            // Start auto-hide timer for VR mode
-            console.log('VR mode: Starting auto-hide timer');
-            this.startControlsAutoHide();
-        }
-        
-        // Hide mouse focus in VR mode
-        if (mouseFocusElement) {
-            mouseFocusElement.style.display = 'none';
-            console.log('Mouse focus hidden (VR mode)');
-        }
-        
-        // Reset mouse state
         window.lastMouseX = 0;
         window.lastMouseY = 0;
         window.isFirstMove = true;
         
-        // Ensure mouse events are bound
-        console.log('Rebinding mouse events...');
         bindMouseEvents();
         
-        // Update VR button state
-        const vrBtn = document.getElementById('vr-btn');
-        if (vrBtn) {
-            vrBtn.classList.add('vr-active');
-        }
-        const exitVrBtn = document.getElementById('exit-vr-btn');
-        if (exitVrBtn) {
-            exitVrBtn.classList.add('vr-active');
-        }
+        this.updateVRButtonStates(true);
         
-        // Update VR video source
         this.updateVRVideoSource();
-        
-        // Set up VR scene
         this.setupVRScene();
         
-        // Start A-Frame scene
         const scene = document.querySelector('a-scene');
         if (scene && !scene.isPlaying) {
-            console.log('Starting A-Frame scene...');
             scene.play();
         }
         
-        // Optimize renderer settings
         if (scene && scene.renderer) {
-            console.log('Configuring renderer...');
             scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             scene.renderer.setSize(window.innerWidth, window.innerHeight);
             scene.renderer.shadowMap.enabled = false;
             scene.renderer.shadowMap.type = 0;
         }
         
-        // Enable hardware acceleration
         this.enableHardwareAcceleration();
         
-        // Force trigger VR scene rendering to ensure display
         setTimeout(() => {
-            const scene = document.querySelector('a-scene');
             if (scene && scene.renderer) {
-                console.log('Force triggering VR scene rendering...');
                 scene.renderer.render(scene.object3D, scene.camera);
-                
-                // Trigger window resize event to force layout recalculation
                 window.dispatchEvent(new Event('resize'));
             }
-            
-            // Force update progress display to ensure correct time display in VR mode
             this.updateProgress();
         }, 100);
         
-        // Show VR mode entry notification
         this.showVRModeNotification();
-        
-        // Update VR mode status indicator
         this.updateVRModeStatus();
         
-        // Immediately update progress display
         setTimeout(() => {
-            console.log('VR mode entry complete, updating progress display');
             this.updateProgress();
-            
-            // If playlist is enabled, ensure VR playlist is also shown
             if (this.settings.showPlaylist && this.videoList.length > 0) {
                 this.updateVRPlaylist();
             }
-            
-            // Auto-center to left eye view (without status notification)
             this.centerOnLeftEye(false);
         }, 200);
     }
 
-    // Update VR video source
-    updateVRVideoSource() {
-        console.log('Updating VR video source...');
+    hideMainInterface() {
+        const elements = ['video-container', 'file-list', 'settings-panel'];
+        elements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.style.display = 'none';
+        });
+    }
+
+    setupVRControls() {
+        const videoControls = document.getElementById('video-controls');
+        const vrControlsContainer = document.getElementById('vr-controls-container');
+        const vrScene = document.getElementById('vr-scene');
         
+        if (videoControls && vrControlsContainer) {
+            vrControlsContainer.appendChild(videoControls);
+            
+            videoControls.style.display = 'block';
+            videoControls.style.visibility = 'visible';
+            videoControls.style.pointerEvents = 'auto';
+            videoControls.style.opacity = '1';
+            videoControls.style.transition = 'opacity 0.3s ease';
+            
+            this.vrControlsMouseEnter = () => {
+                if (this.settings.mouseTracking) {
+                    videoControls.style.opacity = '1';
+                    this.stopControlsAutoHide();
+                } else {
+                    this.stopControlsAutoHide();
+                }
+            };
+            
+            this.vrControlsMouseLeave = () => {
+                if (this.settings.mouseTracking) {
+                    videoControls.style.opacity = this.controlsVisible ? '1' : '0';
+                }
+                this.startControlsAutoHide();
+            };
+            
+            videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
+            videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
+            
+            if (vrScene) {
+                vrScene.style.cursor = this.settings.mouseTracking ? 'none' : 'default';
+            }
+            
+            this.startControlsAutoHide();
+        }
+    }
+
+    updateVRButtonStates(isActive) {
+        const vrBtn = document.getElementById('vr-btn');
+        const exitVrBtn = document.getElementById('exit-vr-btn');
+        
+        if (vrBtn) {
+            vrBtn.classList.toggle('vr-active', isActive);
+        }
+        if (exitVrBtn) {
+            exitVrBtn.classList.toggle('vr-active', isActive);
+        }
+    }
+
+    updateVRVideoSource() {
         if (!this.sharedVideoElement) {
             console.error('Shared video element not initialized');
             return;
         }
-        
-        // Now directly use main video element as VR video source, no additional sync needed
-        console.log('VR video source updated - directly using main video element');
     }
 
     showVRModeNotification() {
@@ -1520,15 +1321,11 @@ class VRPlayer {
     }
 
     exitVRMode() {
-        console.log('=== Exiting VR mode ===');
-        
         document.body.classList.remove('vr-mode');
         this.isVRMode = false;
         
-        // Stop VR mode auto-hide timer
         this.stopControlsAutoHide();
         
-        // Restore interface display
         const videoContainer = document.getElementById('video-container');
         if (videoContainer) {
             videoContainer.style.display = 'block';
@@ -1539,119 +1336,74 @@ class VRPlayer {
             vrScene.style.display = 'none';
         }
         
-        // Restore toolbar to normal style
-        const toolbar = document.querySelector('.toolbar');
-        if (toolbar) {
-            // Keep toolbar visible, CSS will handle the styling
-            toolbar.style.display = 'flex';
+        this.restoreNormalControls();
+        
+        if (document.pointerLockElement && document.exitPointerLock) {
+            document.exitPointerLock();
         }
         
-        // Restore controls to normal mode state
+        this.updateVRButtonStates(false);
+        
+        if (this.settings.showPlaylist && this.videoList.length > 0) {
+            this.updatePlaylist();
+        }
+    }
+
+    restoreNormalControls() {
         const videoControls = document.getElementById('video-controls');
         const videoPlayer = document.getElementById('video-player');
         
         if (videoControls && videoPlayer) {
-            // Move controls back to original position
             videoPlayer.appendChild(videoControls);
-            console.log('Controls moved back to video player');
             
-            // Remove VR mode opacity settings
             videoControls.style.opacity = '';
             videoControls.style.transition = '';
             videoControls.style.visibility = '';
             videoControls.style.pointerEvents = '';
             videoControls.style.display = '';
-            // Remove VR mode mouse event listeners
+            
             if (this.vrControlsMouseEnter) {
                 videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
             }
             if (this.vrControlsMouseLeave) {
                 videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
             }
-            console.log('Controls state restored to normal mode');
         }
-        
-        // Restore mouse focus when exiting VR mode (if needed)
-        if (mouseFocusElement) {
-            mouseFocusElement.style.display = 'none';
-            console.log('Mouse focus hidden (exiting VR mode)');
-        }
-        
-        // Exit pointer lock
-        if (document.pointerLockElement && document.exitPointerLock) {
-            document.exitPointerLock();
-            console.log('Pointer lock released (exiting VR mode)');
-        }
-        
-        // Update VR button state
-        const vrBtn = document.getElementById('vr-btn');
-        if (vrBtn) {
-            vrBtn.classList.remove('vr-active');
-        }
-        const exitVrBtn = document.getElementById('exit-vr-btn');
-        if (exitVrBtn) {
-            exitVrBtn.classList.remove('vr-active');
-        }
-        
-        // Now directly use main video element, no additional pause operations needed
-        
-        // If playlist is enabled, ensure normal playlist is also shown
-        if (this.settings.showPlaylist && this.videoList.length > 0) {
-            this.updatePlaylist();
-        }
-        
-        console.log('=== VR mode exit complete ===');
     }
 
 
 
     setupVRScene() {
-        console.log('Setting up VR scene...');
-        
         try {
-            // VR scene setup
             const scene = document.querySelector('a-scene');
-            
-            console.log('A-Frame scene:', scene);
             
             if (!scene) {
                 console.error('A-Frame scene not found');
                 return;
             }
             
-            // Ensure A-Frame scene is started
             if (!scene.isPlaying) {
-                console.log('Starting A-Frame scene...');
                 scene.play();
             }
             
-            // Enable hardware rendering optimization
             if (scene.renderer) {
-                console.log('Configuring hardware rendering...');
                 scene.renderer.setPixelRatio(window.devicePixelRatio);
                 scene.renderer.setSize(window.innerWidth, window.innerHeight);
-                
-                // Enable hardware acceleration
                 scene.renderer.capabilities.isWebGL2 = true;
-                scene.renderer.shadowMap.enabled = false; // Disable shadows for better performance
-                scene.renderer.shadowMap.type = 0; // No shadows
+                scene.renderer.shadowMap.enabled = false;
+                scene.renderer.shadowMap.type = 0;
             }
             
-            // Check A-Frame scene status
             if (scene.hasLoaded) {
-                console.log('A-Frame scene loaded, checking videosphere');
                 this.checkVideosphere();
             } else {
                 scene.addEventListener('loaded', () => {
-                    console.log('A-Frame scene loaded');
                     this.checkVideosphere();
                 });
             }
             
-            // Force trigger rendering once to ensure display
             setTimeout(() => {
                 if (scene && scene.renderer) {
-                    console.log('setupVRScene: Force triggering render...');
                     scene.renderer.render(scene.object3D, scene.camera);
                 }
             }, 50);
@@ -1662,41 +1414,31 @@ class VRPlayer {
     }
 
     checkVideosphere() {
-        console.log('Checking videosphere...');
-        
         const videosphere = document.querySelector('a-videosphere');
         
         if (videosphere && this.sharedVideoElement) {
-            // Ensure videosphere is correctly configured, directly use main video element
             videosphere.setAttribute('src', '#video-element');
             
-            // Set loop playback
             if (this.settings.loop) {
                 this.sharedVideoElement.loop = true;
             }
             
-            // Apply current VR mode geometry settings
             this.updateVRModeGeometry();
             
-            // Listen for video texture updates to ensure mono mode is correctly applied
             videosphere.addEventListener('materialtextureloaded', () => {
-                console.log('Video texture loaded, applying mono mode');
                 this.applyMonoMode(videosphere);
             });
             
-            // If texture already exists, apply immediately
             setTimeout(() => {
                 this.applyMonoMode(videosphere);
             }, 200);
         }
     }
 
-    // Apply mono mode texture mapping
     applyMonoMode(videosphere) {
         try {
             const mesh = videosphere.getObject3D('mesh');
             if (mesh && mesh.material && mesh.material.map) {
-                // Only show left half of texture (left eye for SBS format)
                 mesh.material.map.repeat.set(0.5, 1);
                 mesh.material.map.offset.set(0, 0);
                 mesh.material.map.needsUpdate = true;
@@ -1987,7 +1729,6 @@ class VRPlayer {
     }
 
     updatePlayButton() {
-        // Update all play button states
         const buttons = [
             document.getElementById('play-pause-btn')
         ];
@@ -1995,10 +1736,8 @@ class VRPlayer {
         buttons.forEach(btn => {
             if (btn) {
                 if (this.isPlaying) {
-                    // Playing state: show pause icon
                     btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
                 } else {
-                    // Paused state: show play icon
                     btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>';
                 }
             }
@@ -2019,7 +1758,6 @@ class VRPlayer {
             const currentTime = this.sharedVideoElement.currentTime;
             const duration = this.sharedVideoElement.duration;
             
-            // Check if time values are valid
             if (!isNaN(currentTime) && !isNaN(duration) && duration > 0) {
                 const percentage = (currentTime / duration) * 100;
                 
@@ -2041,7 +1779,6 @@ class VRPlayer {
                     vrTimeDisplay.textContent = timeText;
                 }
             } else {
-                // Show default values when time data is invalid
                 if (progressBar) {
                     progressBar.value = 0;
                 }
@@ -2059,7 +1796,6 @@ class VRPlayer {
     }
 
     formatTime(seconds) {
-        // Check if input is a valid number
         if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) {
             return '00:00:00';
         }
@@ -2097,20 +1833,13 @@ class VRPlayer {
         }
     }
 
-    playPrevious() {
-        if (this.currentIndex > 0) {
-            this.currentIndex--;
-            this.loadVideo(this.videoList[this.currentIndex]);
-        }
-    }
+    // playPrevious function removed - was unused
 
     updateUI() {
-        // Initialize UI state
         this.updatePlayButton();
         this.updateProgress();
         this.updateVolumeDisplay();
         
-        // Update settings UI
         if (document.getElementById('autoplay')) {
                     document.getElementById('autoplay').checked = this.settings.autoplay;
         document.getElementById('loop').checked = this.settings.loop;
@@ -2119,28 +1848,21 @@ class VRPlayer {
         }
     }
 
-    // Detect if video is VR format
     isVRVideo(filePath) {
         if (!filePath) return false;
         
         const fileName = filePath.toLowerCase();
         
-        // Check for VR keywords in filename
         const vrKeywords = [
-            // Basic VR terms
             'vr', '360', '180', 'sbs', 'side-by-side', 'sidebyside',
             'tb', 'top-bottom', 'topbottom', 'ou', 'over-under',
             'stereo', '3d', 'cardboard', 'oculus', 'gear',
             'pano', 'panorama', 'spherical', 'equirectangular',
-            // More VR formats
             'cubemap', 'fisheye', 'fulldome', 'immersive',
             'monoscopic', 'stereoscopic', 'dome', 'planetarium',
-            // VR device brands
             'quest', 'vive', 'rift', 'pico', 'wmr', 'valve',
             'varjo', 'pimax', 'samsung', 'daydream', 'gopro',
-            // Resolution related
             '4k360', '8k360', '4k180', '8k180', '6k', '8k', '360p', '180p',
-            // Content descriptions
             'virtual', 'reality', 'experience', 'immerse',
             'spatial', 'volumetric', 'ambisonics'
         ];
@@ -2156,27 +1878,23 @@ class VRPlayer {
         return false;
     }
 
-    // Detect VR video mode: 180 degrees or 360 degrees (default 180)
     detectVRMode(filePath) {
         if (!filePath) return '180';
         
         const fileName = filePath.toLowerCase();
         
-        // 360 degree video keywords
         const keywords360 = [
             '360', '360°', 'full360', 'full-360',
             '4k360', '8k360', '360p', '360vr', 'vr360',
             'spherical', 'equirectangular', 'full-sphere'
         ];
         
-        // 180 degree video keywords
         const keywords180 = [
             '180', '180°', 'half180', 'half-180',
             '4k180', '8k180', '180p', '180vr', 'vr180',
             'hemisphere', 'half-sphere', 'front180'
         ];
         
-        // Check 180 degree keywords first
         for (const keyword of keywords180) {
             if (fileName.includes(keyword)) {
                 console.log(`180 degree video detected: "${fileName}" contains keyword "${keyword}"`);
@@ -2184,7 +1902,6 @@ class VRPlayer {
             }
         }
         
-        // Then check 360 degree keywords
         for (const keyword of keywords360) {
             if (fileName.includes(keyword)) {
                 console.log(`360 degree video detected: "${fileName}" contains keyword "${keyword}"`);
@@ -2192,18 +1909,15 @@ class VRPlayer {
             }
         }
         
-        // Default to 180 degree mode
         console.log(`No specific VR mode keywords detected, using default 180 degree mode: "${fileName}"`);
         return '180';
     }
 
-    // Check if video resolution matches VR format
     checkVideoResolution() {
         if (!this.sharedVideoElement) return false;
         
         const video = this.sharedVideoElement;
         
-        // Wait for video to load
         if (video.readyState < 2) return false;
         
         const width = video.videoWidth;
@@ -2213,23 +1927,17 @@ class VRPlayer {
         
         const aspectRatio = width / height;
         
-        // Common VR video aspect ratios
         const vrAspectRatios = [
-            // 360 degree panoramic video
             { ratio: 2.0, tolerance: 0.1, description: '360° panoramic video (2:1)' },
-            // 180 degree video (different ratios)
             { ratio: 1.0, tolerance: 0.1, description: '180° video (1:1)' },
             { ratio: 16/9, tolerance: 0.05, description: '180° video (16:9)' },
             { ratio: 4/3, tolerance: 0.05, description: '180° video (4:3)' },
-            // Side by Side stereo video
             { ratio: 32/9, tolerance: 0.2, description: 'SBS 16:9 stereo video' },
             { ratio: 8/3, tolerance: 0.2, description: 'SBS 4:3 stereo video' },
             { ratio: 4.0, tolerance: 0.2, description: 'SBS 2:1 stereo video' },
-            // Top Bottom stereo video
             { ratio: 16/18, tolerance: 0.1, description: 'TB 16:9 stereo video' },
             { ratio: 4/6, tolerance: 0.1, description: 'TB 4:3 stereo video' },
             { ratio: 1.0, tolerance: 0.05, description: 'TB 1:1 stereo video' },
-            // Other common VR formats
             { ratio: 1.33, tolerance: 0.05, description: '4:3 VR video' },
             { ratio: 1.78, tolerance: 0.05, description: '16:9 VR video' },
             { ratio: 2.35, tolerance: 0.1, description: 'Ultra-wide VR video' }
@@ -2247,7 +1955,6 @@ class VRPlayer {
         return false;
     }
 
-    // Hide playlist
     hidePlaylist() {
         const fileList = document.getElementById('file-list');
         const vrFileList = document.getElementById('vr-file-list');
@@ -2255,7 +1962,6 @@ class VRPlayer {
         
         this.settings.showPlaylist = false;
         
-        // Hide all playlists
         if (fileList) {
             fileList.style.display = 'none';
         }
@@ -2266,19 +1972,16 @@ class VRPlayer {
             playlistBtn.classList.remove('playlist-active');
         }
         
-        // Remove outside click event
         document.removeEventListener('click', this.handleOutsideClick);
         
         this.saveSettings();
     }
 
-    // Toggle playlist
     togglePlaylist() {
         const fileList = document.getElementById('file-list');
         const vrFileList = document.getElementById('vr-file-list');
         const playlistBtn = document.getElementById('playlist-btn');
         
-        // Check if any playlist is currently visible
         const isVisible = (fileList && fileList.style.display !== 'none' && fileList.style.display !== '') || 
                          (vrFileList && vrFileList.style.display !== 'none' && vrFileList.style.display !== '');
         
@@ -2297,14 +2000,12 @@ class VRPlayer {
         this.settings.showPlaylist = true;
         
         if (this.videoList.length > 0) {
-            // Always show the main playlist (file-list) since toolbar is shared
             if (fileList) {
                 fileList.style.display = 'block';
                 fileList.classList.add('fade-in');
-                this.updatePlaylist(); // Sync playlist content
+                this.updatePlaylist();
             }
             
-            // Hide VR playlist if it's visible
             if (vrFileList) {
                 vrFileList.style.display = 'none';
             }
@@ -2313,7 +2014,6 @@ class VRPlayer {
                 playlistBtn.classList.add('playlist-active');
             }
             
-            // Add outside click event
             setTimeout(() => {
                 document.addEventListener('click', this.handleOutsideClick);
             }, 100);
@@ -2323,25 +2023,20 @@ class VRPlayer {
     }
 
     setupMouseWheelZoom() {
-        // VR scene mouse wheel zoom
         const vrScene = document.getElementById('vr-scene');
         let currentScale = 1.0;
         const minScale = 0.5;
         const maxScale = 3.0;
         const scaleStep = 0.1;
 
-        // Listen for VR scene wheel events
         vrScene.addEventListener('wheel', (e) => {
             if (this.isVRMode) {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Adjust zoom based on wheel direction
                 if (e.deltaY > 0) {
-                    // Scroll down, zoom out
                     currentScale = Math.max(minScale, currentScale - scaleStep);
                 } else {
-                    // Scroll up, zoom in
                     currentScale = Math.min(maxScale, currentScale + scaleStep);
                 }
                 
@@ -2349,39 +2044,30 @@ class VRPlayer {
             }
         });
 
-        // Listen for document wheel events to ensure it works in fullscreen mode
         document.addEventListener('wheel', (e) => {
             if (this.isVRMode) {
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Adjust zoom based on wheel direction
                 if (e.deltaY > 0) {
-                    // Scroll down, zoom out
                     currentScale = Math.max(minScale, currentScale - scaleStep);
                 } else {
-                    // Scroll up, zoom in
                     currentScale = Math.min(maxScale, currentScale + scaleStep);
                 }
                 
                 this.updateVRScale(currentScale);
             } else {
-                // Control volume in normal mode
                 e.preventDefault();
                 e.stopPropagation();
                 
-                // Adjust volume based on wheel direction
                 if (e.deltaY > 0) {
-                    // Scroll down, decrease volume
                     this.adjustVolume(-0.05);
                 } else {
-                    // Scroll up, increase volume
                     this.adjustVolume(0.05);
                 }
             }
         }, { passive: false });
 
-        // Listen for A-Frame scene wheel events
         const scene = document.querySelector('a-scene');
         if (scene) {
             scene.addEventListener('wheel', (e) => {
@@ -2389,12 +2075,9 @@ class VRPlayer {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    // Adjust zoom based on wheel direction
                     if (e.deltaY > 0) {
-                        // Scroll down, zoom out
                         currentScale = Math.max(minScale, currentScale - scaleStep);
                 } else {
-                        // Scroll up, zoom in
                         currentScale = Math.min(maxScale, currentScale + scaleStep);
                     }
                     
@@ -2411,36 +2094,32 @@ class VRPlayer {
         
         if (videosphere && camera) {
             try {
-                // Method 1: Adjust camera FOV for zoom
-                const baseFOV = 80; // Base field of view
-                const newFOV = baseFOV / scale; // Larger scale = smaller FOV
+                const baseFOV = 80;
+                const newFOV = baseFOV / scale;
                 camera.setAttribute('camera', `fov: ${newFOV}`);
                 
-                // Method 2: Adjust camera position
                 const baseDistance = 1.6;
                 const newDistance = baseDistance / scale;
                 camera.setAttribute('position', `0 ${newDistance} 0`);
                 
-                // Method 3: Adjust videosphere radius while maintaining VR mode settings
                 const baseRadius = 500;
                 const newRadius = baseRadius * scale;
                 
-                // Set correct geometry parameters based on current VR mode
                 if (this.vrMode === '180') {
                     videosphere.setAttribute('geometry', {
                         radius: newRadius,
-                        phiLength: 180,     // Maintain 180 degree settings
-                        phiStart: -90,      // Maintain 180 degree settings
-                        thetaLength: 180,   
-                        thetaStart: 0       
+                        phiLength: 180,
+                        phiStart: -90,
+                        thetaLength: 180,
+                        thetaStart: 0
                     });
                 } else {
                     videosphere.setAttribute('geometry', {
                         radius: newRadius,
-                        phiLength: 360,     // Maintain 360 degree settings
-                        phiStart: 0,        // Maintain 360 degree settings
-                        thetaLength: 180,   
-                        thetaStart: 0       
+                        phiLength: 360,
+                        phiStart: 0,
+                        thetaLength: 180,
+                        thetaStart: 0
                     });
                 }
                 
@@ -2457,65 +2136,24 @@ class VRPlayer {
     }
 }
 
-// VR mode related variables
 let vrScene = null;
 let vrVideo = null;
-let vrZoomLevel = null;
-let vrZoomInfo = null;
-let currentZoom = 100;
-let mouseFocusElement = null;
 
-// Initialize VR mode
 function initVRMode() {
-    console.log('Initializing VR mode...');
-    
     try {
         vrScene = document.getElementById('vr-scene');
-        vrVideo = document.getElementById('video-element');  // Now use main video element
-        // Removed VR control bar element references, now use unified video-controls
-        vrZoomLevel = document.getElementById('vr-zoom-level');
-        vrZoomInfo = document.getElementById('vr-zoom-info');
+        vrVideo = document.getElementById('video-element');
         
-        if (!vrScene) {
-            console.error('VR scene element not found');
+        if (!vrScene || !vrVideo) {
+            console.error('VR initialization failed: missing elements');
             return;
         }
         
-        if (!vrVideo) {
-            console.error('Main video element not found');
-            return;
-        }
-        
-        createMouseFocus();
-
         bindMouseEvents();
-        
-        console.log('VR mode initialization complete');
         
     } catch (error) {
         console.error('VR mode initialization failed:', error);
     }
-}
-
-// Format time
-function formatTime(seconds) {
-    // Check if input is a valid number
-    if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) {
-        return '00:00:00';
-    }
-    
-    const hours = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
-
-// Create mouse focus element
-function createMouseFocus() {
-    mouseFocusElement = document.createElement('div');
-    mouseFocusElement.className = 'mouse-focus';
-    mouseFocusElement.style.display = 'none';
-    document.body.appendChild(mouseFocusElement);
 }
 
 function bindMouseEvents() {
@@ -2524,7 +2162,6 @@ function bindMouseEvents() {
     window.lastMouseY = 0;
     window.isMouseDown = false;
     
-    // Remove previous event listeners
     if (window.vrMouseMoveHandler) {
         document.removeEventListener('mousemove', window.vrMouseMoveHandler);
     }
@@ -2560,8 +2197,7 @@ function bindMouseEvents() {
         const camera = scene.querySelector('a-camera');
         if (!camera || !player) return;
 
-        if (player.settings.mouseTracking) {
-            // Convert 0-100 range to 0-0.5 range (100 = 0.5)
+        if (player.settings.mouseTracking || window.isMouseDown) {
             const sensitivity = (player.settings.mouseSensitivity / 100) * 0.5;
             
             let deltaX, deltaY;
@@ -2585,33 +2221,6 @@ function bindMouseEvents() {
             const newYaw = currentRotation.y - deltaX * sensitivity;
             const newPitch = Math.max(-90, Math.min(90, currentRotation.x - deltaY * sensitivity));
             camera.setAttribute('rotation', `${newPitch} ${newYaw} 0`);
-        } else {
-            if (window.isMouseDown) {
-                if (window.isFirstMove) {
-                    window.lastMouseX = e.clientX;
-                    window.lastMouseY = e.clientY;
-                    window.isFirstMove = false;
-                    return;
-                }
-                // Convert 0-100 range to 0-0.5 range (100 = 0.5)
-                const sensitivity = (player.settings.mouseSensitivity / 100) * 0.5;
-                
-                let deltaX, deltaY;
-                if (document.pointerLockElement) {
-                    deltaX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
-                    deltaY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
-                } else {
-                    deltaX = e.clientX - window.lastMouseX;
-                    deltaY = e.clientY - window.lastMouseY;
-                    window.lastMouseX = e.clientX;
-                    window.lastMouseY = e.clientY;
-                }
-                
-                const currentRotation = camera.getAttribute('rotation');
-                const newYaw = currentRotation.y - deltaX * sensitivity;
-                const newPitch = Math.max(-90, Math.min(90, currentRotation.x - deltaY * sensitivity));
-                camera.setAttribute('rotation', `${newPitch} ${newYaw} 0`);
-            }
         }
     };
     document.addEventListener('mousemove', window.vrMouseMoveHandler);
@@ -2633,26 +2242,11 @@ function bindMouseEvents() {
                                target.closest('#vr-file-list');
         
         if (isInControlArea) {
-            console.log('Click in control area, allow button interaction');
             return;
         }
         
-        // Check if any panels are open and close them first
-        if (player && e.button === 0) {
-            const fileList = document.getElementById('file-list');
-            const settingsPanel = document.getElementById('settings-panel');
-            const vrFileList = document.getElementById('vr-file-list');
-            
-            const anyPanelOpen = (fileList && fileList.style.display !== 'none') ||
-                               (settingsPanel && settingsPanel.style.display !== 'none') ||
-                               (vrFileList && vrFileList.style.display !== 'none');
-            
-            if (anyPanelOpen) {
-                player.hideSettings();
-                player.hidePlaylist();
-                console.log('VR mode: Mousedown closing panels (non-tracking mode)');
-                return; // Don't start view dragging if we're closing panels
-            }
+        if (player && e.button === 0 && closePanelsIfOpen()) {
+            return;
         }
         
         if (!player.settings.mouseTracking && e.button === 0) {
@@ -2681,9 +2275,7 @@ function bindMouseEvents() {
     
     window.vrClickHandler = (e) => {
         if (isVRModeActive()) {
-            // Only handle panel closing for tracking mode (non-tracking mode is handled in mousedown)
             if (player && player.settings.mouseTracking) {
-                // Check if click should close panels (but not interfere with controls)
                 const target = e.target;
                 const isControlClick = target.closest('#video-controls') ||
                                      target.closest('.control-btn') ||
@@ -2698,18 +2290,7 @@ function bindMouseEvents() {
                                      target.closest('#vr-file-list');
                 
                 if (!isControlClick) {
-                    // Close any open panels when clicking on VR scene in tracking mode
-                    const fileList = document.getElementById('file-list');
-                    const settingsPanel = document.getElementById('settings-panel');
-                    const vrFileList = document.getElementById('vr-file-list');
-                    
-                    if ((fileList && fileList.style.display !== 'none') ||
-                        (settingsPanel && settingsPanel.style.display !== 'none') ||
-                        (vrFileList && vrFileList.style.display !== 'none')) {
-                        player.hideSettings();
-                        player.hidePlaylist();
-                        console.log('VR mode: Clicked on scene, closing panels via vrClickHandler (tracking mode)');
-                    }
+                    closePanelsIfOpen();
                 }
             }
         }
@@ -2717,27 +2298,27 @@ function bindMouseEvents() {
     document.addEventListener('click', window.vrClickHandler);
 }
 
-// Update mouse focus position
-function updateMouseFocus(x, y) {
-    if (mouseFocusElement) {
-        mouseFocusElement.style.left = (x - 12) + 'px';
-        mouseFocusElement.style.top = (y - 12) + 'px';
-        console.log('Mouse focus position updated:', x, y);
-    } else {
-        console.log('Mouse focus element does not exist');
+function closePanelsIfOpen() {
+    const fileList = document.getElementById('file-list');
+    const settingsPanel = document.getElementById('settings-panel');
+    const vrFileList = document.getElementById('vr-file-list');
+    
+    const anyPanelOpen = (fileList && fileList.style.display !== 'none') ||
+                       (settingsPanel && settingsPanel.style.display !== 'none') ||
+                       (vrFileList && vrFileList.style.display !== 'none');
+    
+    if (anyPanelOpen) {
+        player.hideSettings();
+        player.hidePlaylist();
+        return true;
     }
+    return false;
 }
 
-
-
-// Check if VR mode is active
 function isVRModeActive() {
-    const isActive = player && player.isVRMode;
-    console.log('VR mode status check:', isActive, 'player:', !!player, 'isVRMode:', player ? player.isVRMode : 'N/A');
-    return isActive;
+    return player && player.isVRMode;
 }
 
-// Initialize application
 let player = null;
 document.addEventListener('DOMContentLoaded', () => {
     player = new VRPlayer();
