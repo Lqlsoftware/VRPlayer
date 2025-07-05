@@ -1,0 +1,1563 @@
+/* Global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    overflow: hidden;
+    height: 100vh;
+}
+
+#app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Interface containers */
+.interface {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+/* Toolbar */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10001;
+    position: relative;
+    -webkit-app-region: drag; /* Make toolbar draggable */
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-app-region: drag; /* Make left area draggable */
+}
+
+.toolbar-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-app-region: drag; /* Make center area draggable */
+    pointer-events: none; /* Allow clicks to pass through to toolbar */
+}
+
+.app-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.app-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    user-select: none;
+    position: relative;
+    z-index: 10001;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-app-region: no-drag; /* Make right buttons non-draggable */
+    position: relative;
+    z-index: 10001;
+}
+
+.toolbar-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    color: #333;
+    font-size: 14px;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 28px;
+    user-select: none;
+    font-weight: 500;
+    position: relative;
+    z-index: 10001;
+    flex-shrink: 0;
+}
+
+.toolbar-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(0, 0, 0, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.toolbar-btn:active {
+    transform: translateY(0);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Close button special styles */
+#close-btn:hover {
+    background: rgba(255, 59, 48, 0.9);
+    border-color: rgba(255, 59, 48, 0.9);
+    color: white;
+}
+
+#close-btn:active {
+    background: rgba(255, 59, 48, 1);
+}
+
+/* Control buttons */
+.control-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.control-btn:active {
+    transform: translateY(0);
+}
+
+.control-btn .icon {
+    font-size: 16px;
+    color: #333;
+}
+
+.vr-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.vr-btn .icon {
+    color: white;
+}
+
+/* Progress bar */
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    max-width: 400px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.1);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.progress-bar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.time-display {
+    font-size: 12px;
+    color: #666;
+    min-width: 150px;
+    text-align: center;
+}
+
+/* Video container */
+.video-container {
+    flex: 1;
+    position: relative;
+    background: #000;
+    overflow: hidden;
+}
+
+.video-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.placeholder-content {
+    text-align: center;
+    color: white;
+    padding: 40px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.placeholder-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.placeholder-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.placeholder-content p {
+    font-size: 16px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.primary-btn, .secondary-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 10px;
+}
+
+.primary-btn {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+}
+
+.primary-btn:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Video player */
+.video-player {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Bottom video control bar */
+.video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: none;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.video-player:hover .video-controls {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* Enhanced control bar styles for fullscreen mode - only in non-VR mode */
+body:not(.vr-mode) .video-controls.fullscreen-controls {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 80% !important;
+    max-width: 800px !important;
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+}
+
+body:not(.vr-mode) .video-controls.fullscreen-controls.hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
+    background: rgba(0, 0, 0, 0.9) !important;
+    border-radius: 15px !important;
+    padding: 15px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+.control-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 900px;
+    width: 90%;
+    margin: 0 auto;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    margin: 0 auto 20px auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    justify-content: space-between;
+}
+
+/* Control bar left button group */
+.control-bar .left-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+/* Control bar right button group */
+.control-bar .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.video-controls .control-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    color: white;
+}
+
+.video-controls .control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.video-controls .control-btn .icon {
+    font-size: 16px;
+    color: white;
+}
+
+.video-controls .control-btn svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+.video-controls .control-btn.vr-active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.video-controls .control-btn.playlist-active {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+}
+
+.video-controls .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    max-width: 500px;
+    margin: 0 8px;
+}
+
+.video-controls .progress-bar {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.video-controls .progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.video-controls .progress-bar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.video-controls .time-display {
+    font-size: 11px;
+    color: #fff;
+    min-width: 130px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Volume control container */
+.video-controls .volume-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 8px;
+}
+
+/* Volume bar */
+.video-controls .volume-bar {
+    width: 60px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    transition: all 0.3s ease;
+}
+
+.video-controls .volume-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.video-controls .volume-bar::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.video-controls .volume-bar:hover::-webkit-slider-thumb {
+    background: white;
+    transform: scale(1.1);
+}
+
+.video-controls .volume-bar:hover::-moz-range-thumb {
+    background: white;
+    transform: scale(1.1);
+}
+
+/* Volume display */
+.video-controls .volume-display {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.8);
+    min-width: 30px;
+    text-align: center;
+    font-weight: 400;
+}
+
+/* Volume button */
+.video-controls #volume-btn {
+    width: 32px;
+    height: 32px;
+    padding: 6px;
+}
+
+.video-controls #volume-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: rgba(255, 255, 255, 0.8);
+}
+
+.video-controls #volume-btn:hover svg {
+    fill: white;
+}
+
+.video-controls #volume-btn.muted svg {
+    fill: rgba(255, 100, 100, 0.8);
+}
+
+/* File list */
+.file-list {
+    position: absolute;
+    right: 20px;
+    top: 80px;
+    width: 300px;
+    max-height: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    animation: settingsFadeIn 0.3s ease;
+}
+
+.file-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.file-list-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.file-list-content {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.file-item.active {
+    background: rgba(102, 126, 234, 0.2);
+    border-left: 3px solid #667eea;
+}
+
+.file-item .file-icon {
+    font-size: 20px;
+    color: #667eea;
+}
+
+.file-item .file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-item .file-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-item .file-duration {
+    font-size: 12px;
+    color: #666;
+    margin-top: 2px;
+}
+
+/* Settings panel */
+.settings-panel {
+    position: absolute;
+    right: 20px;
+    top: 80px;
+    width: 300px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    animation: settingsFadeIn 0.3s ease;
+}
+
+@keyframes settingsFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.settings-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 20px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.settings-content {
+    padding: 20px;
+}
+
+.setting-group {
+    margin-bottom: 20px;
+}
+
+.setting-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.setting-group select,
+.setting-group input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+}
+
+.setting-group input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* VR scene */
+.vr-scene {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 1000;
+    overflow: hidden;
+    cursor: none; /* Hide mouse cursor */
+    /* Enable hardware acceleration */
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    -webkit-will-change: transform;
+}
+
+.vr-scene a-scene {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    /* Enable hardware acceleration */
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    -webkit-will-change: transform;
+}
+
+/* Fullscreen VR scene positioning fix */
+.vr-scene:fullscreen,
+.vr-scene:-webkit-full-screen,
+.vr-scene:-moz-full-screen,
+.vr-scene:-ms-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: #000 !important;
+    z-index: 1000 !important;
+    cursor: none !important;
+    transform: translateZ(0) !important;
+}
+
+/* Fullscreen a-scene positioning fix */
+.vr-scene:fullscreen a-scene,
+.vr-scene:-webkit-full-screen a-scene,
+.vr-scene:-moz-full-screen a-scene,
+.vr-scene:-ms-fullscreen a-scene {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: translateZ(0) !important;
+}
+
+/* VR control bar */
+.vr-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vr-scene:hover .vr-controls {
+    opacity: 1;
+}
+
+.vr-control-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 400px;
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    margin: 0 auto 20px auto;
+}
+
+.vr-zoom-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    margin: 0 auto 10px auto;
+    max-width: 400px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.vr-zoom-info span {
+    opacity: 0.9;
+}
+
+#vr-zoom-level {
+    font-weight: bold;
+    color: #667eea;
+}
+
+.vr-control-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.vr-control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.vr-control-btn .icon {
+    font-size: 16px;
+    color: white;
+}
+
+.vr-control-btn svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+.vr-progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 200px;
+}
+
+.vr-progress-bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.vr-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.vr-progress-bar::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.vr-time-display {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    min-width: 150px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* File operations area */
+.file-operations {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .toolbar {
+        padding: 6px 15px;
+    }
+    
+    .toolbar-center {
+        gap: 10px;
+    }
+    
+    .control-btn {
+        padding: 8px 12px;
+        min-width: 35px;
+        height: 35px;
+    }
+    
+    .app-title {
+        font-size: 14px;
+    }
+    
+    .app-icon {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .file-list,
+    .settings-panel {
+        width: 280px;
+        right: 10px;
+    }
+    
+    /* Small screen control bar optimization */
+    .control-bar {
+        gap: 6px;
+        padding: 8px 10px;
+        max-width: 95%;
+    }
+    
+    .video-controls .control-btn {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .video-controls .progress-container {
+        max-width: 200px;
+        margin: 0 8px;
+    }
+    
+    .video-controls .volume-bar {
+        width: 50px;
+    }
+    
+    .video-controls .time-display {
+        font-size: 10px;
+        min-width: 110px;
+    }
+    
+    .video-controls .volume-display {
+        font-size: 9px;
+        min-width: 25px;
+    }
+    
+    .vr-mode-indicator {
+        padding: 3px 8px;
+    }
+    
+    .vr-mode-indicator span {
+        font-size: 11px;
+        gap: 3px;
+    }
+}
+
+/* Animation effects */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.5);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.7);
+} 
+
+/* VR control bar styles */
+.vr-controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    pointer-events: none;
+}
+
+.vr-control-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    padding: 10px 20px;
+    pointer-events: auto;
+    max-width: 600px;
+    width: 100%;
+}
+
+.vr-control-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 0;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vr-control-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.vr-control-btn svg {
+    width: 16px;
+    height: 16px;
+    color: white;
+}
+
+.vr-control-btn .icon {
+    font-size: 16px;
+    color: white;
+}
+
+.vr-progress-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+}
+
+.vr-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+}
+
+.vr-progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.vr-time-display {
+    color: white;
+    font-size: 12px;
+    text-align: center;
+    user-select: none;
+}
+
+.vr-zoom-info {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    display: flex;
+    gap: 15px;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.vr-zoom-info.show {
+    opacity: 1;
+}
+
+/* VR mouse focus styles */
+.mouse-focus {
+    position: fixed;
+    width: 24px;
+    height: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: all 0.1s ease;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(3px);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.mouse-focus::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Slider styles in settings panel */
+.setting-group input[type="range"] {
+    width: 150px;
+    margin-right: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(102, 126, 234, 0.2);
+    outline: none;
+}
+
+.setting-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.setting-group input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.setting-group #sensitivity-value {
+    color: #667eea;
+    font-weight: bold;
+    min-width: 30px;
+    display: inline-block;
+} 
+
+/* VR playlist styles */
+.vr-file-list {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    max-height: 60vh;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: white;
+    z-index: 10001;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.vr-file-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.vr-file-list-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: white;
+}
+
+.vr-clear-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.vr-clear-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.vr-file-list-content {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.vr-file-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 5px;
+}
+
+.vr-file-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.vr-file-item.active {
+    background: rgba(102, 126, 234, 0.5);
+    border-left: 3px solid #667eea;
+}
+
+.vr-file-icon {
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+.vr-file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.vr-file-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vr-file-duration {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Toolbar playlist button active state */
+.toolbar-btn.playlist-active {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.5);
+    color: #667eea;
+}
+
+.toolbar-btn.playlist-active svg {
+    fill: #667eea;
+}
+
+.toolbar-btn.playlist-active:hover {
+    background: rgba(102, 126, 234, 0.3);
+    border-color: rgba(102, 126, 234, 0.7);
+}
+
+/* VR control bar container styles */
+.vr-controls-container {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10001;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* VR mode toolbar styles */
+body.vr-mode .toolbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 10001 !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto !important;
+}
+
+/* VR mode file list positioning */
+body.vr-mode .file-list {
+    position: fixed !important;
+    top: 60px !important;
+    right: 20px !important;
+    z-index: 10001 !important;
+}
+
+/* VR mode settings panel positioning */
+body.vr-mode .settings-panel {
+    position: fixed !important;
+    top: 60px !important;
+    right: 20px !important;
+    z-index: 10001 !important;
+}
+
+/* VR mode toolbar button effects */
+body.vr-mode .toolbar-btn {
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+    pointer-events: auto !important;
+}
+
+body.vr-mode .toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+    pointer-events: auto !important;
+}
+
+body.vr-mode .toolbar-btn svg {
+    fill: rgba(255, 255, 255, 0.9);
+}
+
+body.vr-mode .toolbar-btn:hover svg {
+    fill: white;
+}
+
+body.vr-mode .toolbar-btn.playlist-active {
+    background: rgba(102, 126, 234, 0.3);
+    border-color: rgba(102, 126, 234, 0.6);
+    color: #667eea;
+}
+
+body.vr-mode .toolbar-btn.playlist-active svg {
+    fill: #667eea;
+}
+
+/* Ensure toolbar elements can receive events in VR mode */
+body.vr-mode .toolbar-left,
+body.vr-mode .toolbar-center,
+body.vr-mode .toolbar-right,
+body.vr-mode .app-title,
+body.vr-mode .app-icon {
+    pointer-events: auto !important;
+}
+
+/* Styles for video-controls in vr-mode */
+body.vr-mode .video-controls {
+    pointer-events: auto !important;
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    visibility: visible !important;
+    display: block !important;
+    /* Remove opacity: 1 !important; so JavaScript can control transparency */
+}
+
+body.vr-mode .video-controls .control-bar {
+    width: 100%;
+    margin: 0;
+}
+
+/* Ensure VR scene doesn't block toolbar events */
+body.vr-mode .vr-scene {
+    pointer-events: none !important;
+}
+
+body.vr-mode .vr-scene a-scene,
+body.vr-mode .vr-scene .vr-mode-status,
+body.vr-mode .vr-scene .vr-controls-container,
+body.vr-mode .vr-scene .vr-file-list {
+    pointer-events: auto !important;
+}
+
+/* 确保A-Frame场景不会遮挡工具栏 */
+body.vr-mode .vr-scene a-scene {
+    z-index: 999 !important;
+}
+
+/* 确保Canvas不会遮挡工具栏 */
+body.vr-mode .vr-scene a-scene canvas {
+    pointer-events: none !important;
+    z-index: 999 !important;
+}
+
+/* Hide exit VR button in normal mode, hide VR button in VR mode */
+#exit-vr-btn { 
+    display: none; 
+    background: transparent;
+}
+body.vr-mode #exit-vr-btn { display: flex !important; }
+body.vr-mode #vr-btn { display: none !important; }
+
+/* VR mode status indicator */
+.vr-mode-status {
+    display: none;
+    pointer-events: auto;
+    transition: opacity 0.3s ease;
+}
+
+body.vr-mode .vr-mode-status {
+    display: block;
+    opacity: 1;
+}
+
+body.vr-mode .vr-mode-indicator {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.6);
+}
+
+body.vr-mode .vr-mode-indicator span {
+    color: #ffffff;
+}
+
+.vr-mode-indicator {
+    background: rgba(102, 126, 234, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 6px;
+    padding: 4px 10px;
+    border: 1px solid rgba(102, 126, 234, 0.4);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.vr-mode-indicator span {
+    color: #667eea;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.vr-mode-indicator span::before {
+    content: "🎯";
+    font-size: 14px;
+}
+
+/* Special styles for 180-degree mode */
+.vr-mode-indicator.mode-180 {
+    border-color: rgba(255, 149, 0, 0.6);
+}
+
+.vr-mode-indicator.mode-180 span::before {
+    content: "🌓";
+}
+
+/* Special styles for stereo mode */
+.vr-mode-indicator.mode-mono {
+    border-color: rgba(46, 204, 113, 0.6);
+}
+
+.vr-mode-indicator.mode-mono span::before {
+    content: "👁️";
+}
+
+.vr-mode-indicator.mode-sbs {
+    border-color: rgba(155, 89, 182, 0.6);
+}
+
+.vr-mode-indicator.mode-sbs span::before {
+    content: "👁️👁️";
+}
+
+.vr-mode-indicator.mode-tb {
+    border-color: rgba(241, 196, 15, 0.6);
+}
+
+.vr-mode-indicator.mode-tb span::before {
+    content: "🔄";
+}
+
+/* Other buttons can be controlled by display */

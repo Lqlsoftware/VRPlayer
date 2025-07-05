@@ -1,0 +1,56 @@
+{
+  "name": "vr-player",
+  "version": "1.0.0",
+  "description": "A VR video player built with Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "vr",
+    "video",
+    "player",
+    "electron",
+    "360"
+  ],
+  "author": "VR Player Team",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "three": "^0.158.0",
+    "aframe": "^1.4.2",
+    "aframe-extras": "^7.0.0"
+  },
+  "build": {
+    "appId": "com.vrplayer.app",
+    "productName": "VR Player",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "!dist/**/*",
+      "!src/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  }
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Player</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.0.0/dist/aframe-extras.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Main Interface -->
+        <div id="main-interface" class="interface">
+            <!-- Top Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <img src="assets/icon.png" alt="VR Player" class="app-icon">
+                    <h1 class="app-title">VR Player</h1>
+                </div>
+                <div class="toolbar-center">
+                    <!-- VR Mode Status -->
+                    <div id="vr-mode-status" class="vr-mode-status">
+                        <div class="vr-mode-indicator">
+                            <span id="vr-mode-text">360°</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="toolbar-right">
+                    <button id="playlist-btn" class="toolbar-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3,6V8H21V6H3Z M3,11V13H21V11H3Z M3,16V18H21V16H3Z"/>
+                        </svg>
+                    </button>
+                    <button id="settings-btn" class="toolbar-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                        </svg>
+                    </button>
+                    <button id="minimize-btn" class="toolbar-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6,19h12v2H6z"/>
+                        </svg>
+                    </button>
+                    <button id="maximize-btn" class="toolbar-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7,14H5v5h5v-2H7V14z M5,10h2V7h3V5H5V10z M14,5v2h3v3h2V5H14z M19,14h-2v3h-3v2h5V14z"/>
+                        </svg>
+                    </button>
+                    <button id="close-btn" class="toolbar-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Video Player Area -->
+            <div id="video-container" class="video-container">
+                <div id="video-placeholder" class="video-placeholder">
+                    <div class="placeholder-content">
+                        <div class="placeholder-icon">🎬</div>
+                        <h2>欢迎使用 VR Player</h2>
+                        <p>拖拽视频文件到这里，或点击下方按钮选择视频</p>
+                        <button id="open-file-btn" class="primary-btn">打开视频文件</button>
+                        <button id="open-folder-btn" class="secondary-btn">打开文件夹</button>
+                    </div>
+                </div>
+                <div id="video-player" class="video-player" style="display: none;">
+                    <video id="video-element" crossorigin="anonymous" preload="auto" playsinline>
+                        您的浏览器不支持视频播放
+                    </video>
+                    <!-- Video Controls -->
+                    <div id="video-controls" class="video-controls">
+                        <div class="control-bar">
+                            <div class="left-controls">
+                                <button id="play-pause-btn" class="control-btn">
+                                    <span class="icon">▶</span>
+                                </button>
+                                <button id="stop-btn" class="control-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M6,6h12v12H6V6z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="progress-container">
+                                <input type="range" id="progress-bar" min="0" max="100" value="0" class="progress-bar">
+                                <span id="time-display" class="time-display">00:00:00 / 00:00:00</span>
+                            </div>
+                            <div class="right-controls">
+                                <div class="volume-container">
+                                    <button id="volume-btn" class="control-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/>
+                                        </svg>
+                                    </button>
+                                    <input type="range" id="volume-bar" min="0" max="100" value="50" class="volume-bar">
+                                    <span id="volume-display" class="volume-display">50%</span>
+                                </div>
+                                <button id="vr-btn" class="control-btn">
+                                    <span class="icon">🥽</span>
+                                </button>
+                                <button id="exit-vr-btn" class="control-btn" style="display:none;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41z"/>
+                                    </svg>
+                                </button>
+                                <button id="fullscreen-btn" class="control-btn">
+                                    <span class="icon">⛶</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Playlist -->
+            <div id="file-list" class="file-list" style="display: none;">
+                <div class="file-list-header">
+                    <h3>播放列表</h3>
+                    <button id="clear-list-btn" class="clear-btn">清空列表</button>
+                </div>
+                <div id="file-list-content" class="file-list-content">
+                    <!-- File list items will be dynamically generated here -->
+                </div>
+            </div>
+
+            <!-- Settings Panel -->
+            <div id="settings-panel" class="settings-panel" style="display: none;">
+                <div class="settings-header">
+                    <h3>设置</h3>
+                    <button id="close-settings-btn" class="close-btn">×</button>
+                </div>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <label>自动播放</label>
+                        <input type="checkbox" id="autoplay">
+                    </div>
+                    <div class="setting-group">
+                        <label>循环播放</label>
+                        <input type="checkbox" id="loop">
+                    </div>
+                    <div class="setting-group">
+                        <label>鼠标追踪灵敏度</label>
+                        <input type="range" id="mouse-sensitivity" min="0" max="100" step="1" value="40">
+                        <span id="sensitivity-value">40</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VR Scene -->
+            <div id="vr-scene" class="vr-scene" style="display: none;">
+                <a-scene embedded vr-mode-ui="enabled: false" loading-screen="enabled: false" renderer="antialias: true; colorManagement: true; powerPreference: high-performance; precision: highp">
+                    <a-assets>
+                        <!-- VR video asset uses the main video element -->
+                    </a-assets>
+                    
+                    <!-- 360 Video Sphere -->
+                    <a-videosphere src="#video-element" geometry="radius: 500; phiLength: 360; phiStart: 0" material="shader: flat"></a-videosphere>
+                    
+                    <!-- Camera -->
+                    <a-camera id="vr-camera" position="0 1.6 0" rotation="0 -90 0" look-controls="enabled: false" camera="fov: 80">
+                        <!-- Custom mouse focus and view controls -->
+                    </a-camera>
+                    
+                    <!-- Ambient Light -->
+                    <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+                </a-scene>
+                
+                <!-- VR Controls Container -->
+                <div id="vr-controls-container" class="vr-controls-container">
+                    <!-- Controls will be moved here in VR mode -->
+                </div>
+                
+                <!-- VR Playlist -->
+                <div id="vr-file-list" class="vr-file-list" style="display: none;">
+                    <div class="vr-file-list-header">
+                        <h3>播放列表</h3>
+                        <button id="vr-clear-list-btn" class="vr-clear-btn">清空列表</button>
+                    </div>
+                    <div id="vr-file-list-content" class="vr-file-list-content">
+                        <!-- VR file list items will be dynamically generated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/renderer.js"></script>
+</body>
+</html> 
