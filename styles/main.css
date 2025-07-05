@@ -1561,3 +1561,78 @@ body.vr-mode .vr-mode-indicator span {
 }
 
 /* Other buttons can be controlled by display */
+
+/* Mac platform specific styles */
+.toolbar-right-mac {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    -webkit-app-region: no-drag;
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10001;
+}
+
+.app-icon-mac {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.app-title-mac {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    user-select: none;
+    white-space: nowrap;
+}
+
+/* Mac platform modifications */
+body.mac-platform .toolbar {
+    height: 48px; /* Fixed height for Mac platform */
+    min-height: 48px;
+}
+
+body.mac-platform .toolbar-left {
+    display: none;
+}
+
+body.mac-platform .toolbar-right-mac {
+    display: flex;
+}
+
+body.mac-platform .toolbar-center {
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+body.mac-platform .toolbar-right {
+    position: absolute;
+    right: 140px; /* Position buttons to the left of icon/title */
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    -webkit-app-region: no-drag;
+}
+
+body.mac-platform #minimize-btn,
+body.mac-platform #maximize-btn,
+body.mac-platform #close-btn {
+    display: none !important;
+}
+
+/* Mac platform VR mode styles */
+body.mac-platform.vr-mode .toolbar-right-mac .app-icon-mac {
+    filter: invert(1);
+}
+
+body.mac-platform.vr-mode .toolbar-right-mac .app-title-mac {
+    color: rgba(255, 255, 255, 0.9);
+}

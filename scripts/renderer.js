@@ -31,6 +31,7 @@ class VRPlayer {
         this.updateUI();
         this.initSharedVideo();
         this.initLanguage();
+        this.initPlatform();
     }
 
     initLanguage() {
@@ -40,6 +41,33 @@ class VRPlayer {
         } else {
             // Retry after a short delay if i18n is not ready
             setTimeout(() => this.initLanguage(), 100);
+        }
+    }
+
+    async initPlatform() {
+        try {
+            this.platform = await ipcRenderer.invoke('get-platform');
+            this.applyPlatformStyles();
+        } catch (error) {
+            console.error('Failed to get platform:', error);
+        }
+    }
+
+    applyPlatformStyles() {
+        if (this.platform === 'darwin') {
+            // Apply Mac-specific styles
+            document.body.classList.add('mac-platform');
+            
+            // Hide minimize and close buttons on Mac
+            const minimizeBtn = document.getElementById('minimize-btn');
+            const closeBtn = document.getElementById('close-btn');
+            
+            if (minimizeBtn) {
+                minimizeBtn.style.display = 'none';
+            }
+            if (closeBtn) {
+                closeBtn.style.display = 'none';
+            }
         }
     }
 
