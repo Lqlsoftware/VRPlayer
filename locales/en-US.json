@@ -1,0 +1,81 @@
+{
+  "app": {
+    "title": "VR Player",
+    "welcome": "Welcome to VR Player",
+    "unsupported_browser": "Your browser does not support video playback"
+  },
+  "placeholder": {
+    "drag_video": "Drag video files here, or click the button below to select a video",
+    "open_file": "Open Video File",
+    "open_folder": "Open Folder"
+  },
+  "controls": {
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop",
+    "volume": "Volume",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "fullscreen": "Fullscreen",
+    "exit_fullscreen": "Exit Fullscreen",
+    "enter_vr": "Enter VR Mode",
+    "exit_vr": "Exit VR Mode"
+  },
+  "playlist": {
+    "title": "Playlist",
+    "clear": "Clear List",
+    "empty": "Playlist is empty",
+    "current": "Now Playing"
+  },
+  "settings": {
+    "title": "Settings",
+    "autoplay": "Autoplay",
+    "loop": "Loop",
+    "mouse_sensitivity": "Mouse Tracking Sensitivity",
+    "language": "Language",
+    "chinese": "简体中文",
+    "english": "English"
+  },
+  "messages": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "video_loaded": "Video loaded successfully",
+    "video_error": "Failed to load video",
+    "no_video": "No video selected",
+    "vr_mode_enabled": "VR mode enabled",
+    "vr_mode_disabled": "VR mode disabled",
+    "mouse_tracking_enabled": "Mouse tracking enabled",
+    "mouse_tracking_disabled": "Mouse tracking disabled",
+    "zoom_reset": "Zoom reset",
+    "view_reset": "View reset",
+    "center_left": "Center left eye",
+    "center_right": "Center right eye",
+    "center_middle": "Center middle",
+    "mono_mode": "Mono mode",
+    "stereo_mode": "Stereo mode",
+    "mode_180": "180° mode",
+    "mode_360": "360° mode",
+    "vr_auto_detected": "🎯 VR video detected, automatically entered VR mode (mono display)",
+    "vr_manual_entered": "🎯 Entered VR mode (mono display)",
+    "vr_controls_help": "ESC Exit | Enter Fullscreen | K Tracking | I Toggle 180/360° | Mouse Wheel Zoom",
+    "vr_view_help": "Mouse Drag View | Double Click Center | Scroll Zoom | Space Play/Pause",
+    "muted": "Muted"
+  },
+  "keyboard": {
+    "shortcuts": "Keyboard Shortcuts",
+    "space": "Space - Play/Pause",
+    "left_right": "Left/Right Arrow - Seek",
+    "up_down": "Up/Down Arrow - Volume",
+    "f": "F - Fullscreen",
+    "v": "V - VR Mode",
+    "m": "M - Mute",
+    "r": "R - Reset View",
+    "t": "T - Mouse Tracking",
+    "escape": "ESC - Exit Fullscreen/VR"
+  },
+  "time": {
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds"
+  }
+} 

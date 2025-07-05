@@ -17,7 +17,8 @@ class VRPlayer {
             loop: false,
             showPlaylist: false,
             mouseTracking: true,
-            mouseSensitivity: 20
+            mouseSensitivity: 20,
+            language: 'zh-CN'
         };
         this.vrMode = '180'; // VR mode: '360' or '180'
         this.monoMode = true; // Always show mono video to avoid compression
@@ -30,6 +31,17 @@ class VRPlayer {
         this.loadSettings();
         this.updateUI();
         this.initSharedVideo();
+        this.initLanguage();
+    }
+
+    initLanguage() {
+        // Wait for i18n to be initialized
+        if (window.i18n) {
+            window.i18n.switchLanguage(this.settings.language);
+        } else {
+            // Retry after a short delay if i18n is not ready
+            setTimeout(() => this.initLanguage(), 100);
+        }
     }
 
     initSharedVideo() {
@@ -165,6 +177,10 @@ class VRPlayer {
             this.updateSetting('mouseSensitivity', parseInt(e.target.value));
             document.getElementById('sensitivity-value').textContent = e.target.value;
         });
+        document.getElementById('language-select').addEventListener('change', (e) => {
+            this.updateSetting('language', e.target.value);
+            this.switchLanguage(e.target.value);
+        });
 
         // File list events
         document.getElementById('clear-list-btn').addEventListener('click', () => this.clearPlaylist());
@@ -193,7 +209,7 @@ class VRPlayer {
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         document.addEventListener('mousedown', (e) => this.handleMouseInteraction(e));
         
-        // 监听pointer lock状态变化
+        // Listen for pointer lock state changes
         document.addEventListener('pointerlockchange', () => this.handlePointerLockChange());
         document.addEventListener('mozpointerlockchange', () => this.handlePointerLockChange());
         document.addEventListener('webkitpointerlockchange', () => this.handlePointerLockChange());
@@ -213,6 +229,11 @@ class VRPlayer {
         ipcRenderer.on('load-video-folder', (event, files) => this.loadVideoFolder(files));
         ipcRenderer.on('enter-vr-mode', () => this.enterVRMode());
         ipcRenderer.on('exit-vr-mode', () => this.exitVRMode());
+
+        // Language change event
+        window.addEventListener('languageChanged', (event) => {
+            this.onLanguageChanged(event.detail.language);
+        });
     }
 
     setupDragAndDrop() {
@@ -345,15 +366,18 @@ class VRPlayer {
     }
 
     centerOnLeftEye(showStatus = true) {
-        this.setCameraRotation('0 -90 0', showStatus ? '视角已重置到左眼中心' : null);
+        const message = showStatus ? (window.i18n ? window.i18n.t('messages.center_left') : 'Centered on left eye') : null;
+        this.setCameraRotation('0 -90 0', message);
     }
 
     centerOnRightEye() {
-        this.setCameraRotation('0 90 0', '视角已重置到右眼中心');
+        const message = window.i18n ? window.i18n.t('messages.center_right') : 'Centered on right eye';
+        this.setCameraRotation('0 90 0', message);
     }
 
     centerOnMiddle() {
-        this.setCameraRotation('0 0 0', '视角已重置到中心位置');
+        const message = window.i18n ? window.i18n.t('messages.center_middle') : 'Centered on middle';
+        this.setCameraRotation('0 0 0', message);
     }
 
     setCameraRotation(rotation, statusMessage) {
@@ -381,7 +405,8 @@ class VRPlayer {
         const videoControls = document.getElementById('video-controls');
         
         if (this.settings.mouseTracking) {
-            this.showTrackingStatus('鼠标追踪: 开启');
+            const message = window.i18n ? window.i18n.t('messages.mouse_tracking_enabled') : 'Mouse tracking: enabled';
+            this.showTrackingStatus(message);
             if (vrScene) {
                 vrScene.style.cursor = 'none';
             }
@@ -423,7 +448,8 @@ class VRPlayer {
                 this.startControlsAutoHide();
             }
         } else {
-            this.showTrackingStatus('鼠标追踪: 关闭');
+            const message = window.i18n ? window.i18n.t('messages.mouse_tracking_disabled') : 'Mouse tracking: disabled';
+            this.showTrackingStatus(message);
             if (vrScene) {
                 vrScene.style.cursor = 'default';
             }
@@ -499,7 +525,8 @@ class VRPlayer {
         
         this.updateVRModeGeometry();
         
-        this.showTrackingStatus(`VR 模式: ${this.vrMode}°`);
+        const message = window.i18n ? window.i18n.t(`messages.mode_${this.vrMode}`) : `VR mode: ${this.vrMode}°`;
+        this.showTrackingStatus(message);
         
         if (this.vrMode === '180') {
             this.centerOnLeftEye(false);
@@ -558,7 +585,8 @@ class VRPlayer {
         const vrModeIndicator = document.querySelector('.vr-mode-indicator');
         
         if (vrModeText) {
-            vrModeText.textContent = `${this.vrMode}° 单眼`;
+            const monoText = window.i18n ? window.i18n.t('messages.mono_mode') : 'Mono';
+            vrModeText.textContent = `${this.vrMode}° ${monoText}`;
         }
         
         if (vrModeIndicator) {
@@ -800,7 +828,8 @@ class VRPlayer {
         
         if (volumeDisplay) {
             if (this.sharedVideoElement.muted) {
-                volumeDisplay.textContent = '静音';
+                const mutedText = window.i18n ? window.i18n.t('messages.muted') : 'Muted';
+                volumeDisplay.textContent = mutedText;
             } else {
                 volumeDisplay.textContent = Math.round(this.sharedVideoElement.volume * 100) + '%';
             }
@@ -1103,7 +1132,8 @@ class VRPlayer {
             console.log('Pointer lock exited, disabling mouse tracking');
             this.settings.mouseTracking = false;
             this.saveSettings();
-            this.showTrackingStatus('鼠标追踪: 关闭');
+            const message = window.i18n ? window.i18n.t('messages.mouse_tracking_disabled') : 'Mouse tracking: disabled';
+            this.showTrackingStatus(message);
             
             const vrScene = document.getElementById('vr-scene');
             if (vrScene) {
@@ -1294,18 +1324,22 @@ class VRPlayer {
         // Check if auto-entered VR mode due to VR video detection
         const isAutoEntered = this.isVRVideo(this.currentVideo) || this.checkVideoResolution();
         
+        const monoText = window.i18n ? window.i18n.t('messages.mono_mode') : 'Mono';
+        const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | K Tracking | I Toggle 180/360° | Mouse Wheel Zoom';
+        
         if (isAutoEntered) {
+            const autoDetectedText = window.i18n ? window.i18n.t('messages.vr_auto_detected') : '🎯 VR video detected, automatically entered VR mode (mono display)';
             notification.innerHTML = `
-                <div>🎯 检测到VR视频，已自动进入VR模式（单眼显示）</div>
+                <div>${autoDetectedText}</div>
                 <div style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
-                    ESC 退出 | Enter 全屏 | K 追踪 | I 切换180/360° | 鼠标中键 缩放
+                    ${controlsHelp}
                 </div>
             `;
         } else {
             notification.innerHTML = `
-                <div>VR 模式 (${this.vrMode}° 单眼)</div>
+                <div>VR ${window.i18n ? window.i18n.t('messages.mode_' + this.vrMode) : 'mode'} (${monoText})</div>
                 <div style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
-                    ESC 退出 | Enter 全屏 | K 追踪 | I 切换180/360° | 鼠标中键 缩放
+                    ${controlsHelp}
                 </div>
             `;
         }
@@ -1567,6 +1601,12 @@ class VRPlayer {
         document.getElementById('autoplay').checked = this.settings.autoplay;
         document.getElementById('loop').checked = this.settings.loop;
         
+        // Set language select value
+        const languageSelect = document.getElementById('language-select');
+        if (languageSelect) {
+            languageSelect.value = this.settings.language;
+        }
+        
         // Set playlist default to closed
         if (this.settings.showPlaylist === undefined) {
             this.settings.showPlaylist = false;
@@ -1612,6 +1652,31 @@ class VRPlayer {
             vrMode: this.vrMode
         };
         localStorage.setItem('vrPlayerSettings', JSON.stringify(settingsToSave));
+    }
+
+    switchLanguage(language) {
+        // Wait for i18n to be initialized
+        if (window.i18n) {
+            window.i18n.switchLanguage(language);
+        }
+    }
+
+    onLanguageChanged(language) {
+        // Update VR mode status text
+        this.updateVRModeStatus();
+        
+        // Update language dropdown
+        const languageSelect = document.getElementById('language-select');
+        if (languageSelect) {
+            languageSelect.value = language;
+        }
+        
+        // Update volume display for muted state
+        this.updateVolumeDisplay();
+        
+        // Update any dynamic content that may need refreshing
+        this.updatePlaylist();
+        this.updateVRPlaylist();
     }
 
     addToPlaylist(filePath) {
