@@ -29,7 +29,6 @@
   },
   "settings": {
     "title": "设置",
-    "autoplay": "自动播放",
     "loop": "循环播放",
     "mouse_sensitivity": "鼠标追踪灵敏度",
     "language": "语言",

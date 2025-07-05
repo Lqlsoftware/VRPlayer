@@ -13,7 +13,6 @@ class VRPlayer {
         this.controlsVisible = true;
         this.controlsHideDelay = 1000;
         this.settings = {
-            autoplay: false,
             loop: false,
             showPlaylist: false,
             mouseTracking: true,
@@ -171,7 +170,6 @@ class VRPlayer {
         });
 
         // Settings events
-        document.getElementById('autoplay').addEventListener('change', (e) => this.updateSetting('autoplay', e.target.checked));
         document.getElementById('loop').addEventListener('change', (e) => this.updateSetting('loop', e.target.checked));
         document.getElementById('mouse-sensitivity').addEventListener('input', (e) => {
             this.updateSetting('mouseSensitivity', parseInt(e.target.value));
@@ -1598,7 +1596,6 @@ class VRPlayer {
         }
         
         // Update UI
-        document.getElementById('autoplay').checked = this.settings.autoplay;
         document.getElementById('loop').checked = this.settings.loop;
         
         // Set language select value
@@ -1905,9 +1902,8 @@ class VRPlayer {
         this.updateProgress();
         this.updateVolumeDisplay();
         
-        if (document.getElementById('autoplay')) {
-                    document.getElementById('autoplay').checked = this.settings.autoplay;
-        document.getElementById('loop').checked = this.settings.loop;
+        if (document.getElementById('loop')) {
+            document.getElementById('loop').checked = this.settings.loop;
             document.getElementById('mouse-sensitivity').value = this.settings.mouseSensitivity;
             document.getElementById('sensitivity-value').textContent = this.settings.mouseSensitivity;
         }

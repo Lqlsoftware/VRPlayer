@@ -29,7 +29,6 @@
   },
   "settings": {
     "title": "Settings",
-    "autoplay": "Autoplay",
     "loop": "Loop",
     "mouse_sensitivity": "Mouse Tracking Sensitivity",
     "language": "Language",

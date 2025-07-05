@@ -32,7 +32,6 @@ class AppConfig {
             video: {
                 supportedFormats: ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.m4v'],
                 defaultQuality: 'auto',
-                autoplay: false,
                 loop: false,
                 volume: 1.0,
                 playbackRate: 1.0
