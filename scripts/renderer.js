@@ -263,38 +263,217 @@ class VRPlayer {
     }
 
     setupDragAndDrop() {
-        const videoContainer = document.getElementById('video-container');
+        // Setup drag and drop for both normal and VR modes
+        this.setupDragDropForElement('video-container');
+        this.setupDragDropForElement('vr-scene');
         
-        videoContainer.addEventListener('dragover', (e) => {
+        // Also setup for the whole document as a fallback
+        document.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            videoContainer.style.border = '2px dashed #667eea';
+            this.showDragIndicator();
         });
 
-        videoContainer.addEventListener('dragleave', (e) => {
+        document.addEventListener('dragleave', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            videoContainer.style.border = 'none';
-        });
-
-        videoContainer.addEventListener('drop', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            videoContainer.style.border = 'none';
-            
-            const files = Array.from(e.dataTransfer.files);
-            const videoFiles = files.filter(file => 
-                /\.(mp4|webm|avi|mov|mkv|m4v)$/i.test(file.name)
-            );
-            
-            if (videoFiles.length > 0) {
-                if (videoFiles.length === 1) {
-                    this.loadVideo(videoFiles[0].path);
-                } else {
-                    this.loadVideoFolder(videoFiles.map(f => f.path));
-                }
+            // Only hide indicator if we're leaving the document
+            if (e.clientX === 0 && e.clientY === 0) {
+                this.hideDragIndicator();
             }
         });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.hideDragIndicator();
+            this.handleFileDrop(e);
+        });
+    }
+
+    setupDragDropForElement(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        element.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.showDragIndicator();
+        });
+
+        element.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.hideDragIndicator();
+        });
+
+        element.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.hideDragIndicator();
+            this.handleFileDrop(e);
+        });
+    }
+
+    showDragIndicator() {
+        const videoContainer = document.getElementById('video-container');
+        const vrScene = document.getElementById('vr-scene');
+        
+        const message = window.i18n ? window.i18n.t('messages.drop_video_here') : 'Drop video files here to play';
+        
+        if (this.isVRMode && vrScene) {
+            // In VR mode, show indicator on VR scene
+            vrScene.style.outline = '3px dashed #667eea';
+            vrScene.style.outlineOffset = '-3px';
+            this.showDragNotification(message);
+        } else if (videoContainer) {
+            // In normal mode, show indicator on video container
+            videoContainer.style.border = '2px dashed #667eea';
+            this.showDragNotification(message);
+        }
+    }
+
+    hideDragIndicator() {
+        const videoContainer = document.getElementById('video-container');
+        const vrScene = document.getElementById('vr-scene');
+        
+        if (videoContainer) {
+            videoContainer.style.border = 'none';
+        }
+        if (vrScene) {
+            vrScene.style.outline = 'none';
+        }
+        this.hideDragNotification();
+    }
+
+    showDragNotification(message) {
+        let notification = document.getElementById('drag-notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'drag-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                font-size: 18px;
+                z-index: 10002;
+                text-align: center;
+                pointer-events: none;
+                border: 2px dashed #667eea;
+                backdrop-filter: blur(10px);
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        // Check if video is currently playing
+        if (this.currentVideo && this.isPlaying) {
+            const currentFileName = this.currentVideo.split(/[\\/]/).pop();
+            const replaceMessage = window.i18n ? window.i18n.t('messages.replace_current_video') : 'Will replace current playing video';
+            notification.innerHTML = `
+                <div style="font-size: 18px; margin-bottom: 10px;">${message}</div>
+                <div style="font-size: 14px; opacity: 0.8; color: #ffd700;">
+                    ${replaceMessage}: ${currentFileName}
+                </div>
+            `;
+        } else {
+            notification.textContent = message;
+        }
+        notification.style.display = 'block';
+    }
+
+    hideDragNotification() {
+        const notification = document.getElementById('drag-notification');
+        if (notification) {
+            notification.style.display = 'none';
+        }
+    }
+
+    handleFileDrop(e) {
+        const files = Array.from(e.dataTransfer.files);
+        const videoFiles = files.filter(file => 
+            /\.(mp4|webm|avi|mov|mkv|m4v)$/i.test(file.name)
+        );
+        
+        if (videoFiles.length === 0) {
+            // Show error message for unsupported files
+            this.showDropErrorMessage();
+            return;
+        }
+        
+        // Show loading message
+        this.showDropLoadingMessage();
+        
+        // Load video(s) after a short delay to show the loading message
+        setTimeout(() => {
+            if (videoFiles.length === 1) {
+                this.loadVideo(videoFiles[0].path);
+            } else {
+                this.loadVideoFolder(videoFiles.map(f => f.path));
+            }
+        }, 100);
+    }
+
+    showDropErrorMessage() {
+        const errorMessage = window.i18n ? window.i18n.t('messages.unsupported_file_type') : 'Unsupported file type';
+        const supportedMessage = window.i18n ? window.i18n.t('messages.supported_formats') : 'Supported formats: MP4, WebM, AVI, MOV, MKV, M4V';
+        
+        let notification = document.getElementById('drag-notification');
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.id = 'drag-notification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(220, 38, 38, 0.9);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 10px;
+                font-size: 18px;
+                z-index: 10002;
+                text-align: center;
+                pointer-events: none;
+                border: 2px solid #dc2626;
+                backdrop-filter: blur(10px);
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        notification.innerHTML = `
+            <div style="font-size: 18px; margin-bottom: 10px;">${errorMessage}</div>
+            <div style="font-size: 14px; opacity: 0.9;">${supportedMessage}</div>
+        `;
+        notification.style.display = 'block';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            if (notification) {
+                notification.style.display = 'none';
+            }
+        }, 3000);
+    }
+
+    showDropLoadingMessage() {
+        const loadingMessage = window.i18n ? window.i18n.t('messages.loading_video') : 'Loading video...';
+        
+        let notification = document.getElementById('drag-notification');
+        if (notification) {
+            notification.innerHTML = `
+                <div style="font-size: 18px;">
+                    <div style="display: inline-block; margin-right: 10px;">⏳</div>
+                    ${loadingMessage}
+                </div>
+            `;
+            notification.style.background = 'rgba(0, 0, 0, 0.9)';
+            notification.style.border = '2px solid #667eea';
+            notification.style.display = 'block';
+        }
     }
 
     handleKeyPress(e) {
@@ -1901,6 +2080,9 @@ class VRPlayer {
         this.updatePlaylist();
         this.updateVRPlaylist();
         this.updateVolumeDisplay();
+        
+        // Hide drag notification if it's still showing
+        this.hideDragNotification();
     }
 
     onVideoEnded() {

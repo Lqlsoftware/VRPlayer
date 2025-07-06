@@ -58,7 +58,12 @@
     "vr_manual_entered": "🎯 Entered VR mode (mono display)",
     "vr_controls_help": "ESC Exit | Enter Fullscreen | K Tracking | I Toggle 180/360° | Mouse Wheel Zoom",
     "vr_view_help": "Mouse Drag View | Double Click Center | Scroll Zoom | Space Play/Pause",
-    "muted": "Muted"
+    "muted": "Muted",
+    "drop_video_here": "Drop video files here to play",
+    "replace_current_video": "Will replace current playing video",
+    "unsupported_file_type": "Unsupported file type",
+    "supported_formats": "Supported formats: MP4, WebM, AVI, MOV, MKV, M4V",
+    "loading_video": "Loading video..."
   },
   "keyboard": {
     "shortcuts": "Keyboard Shortcuts",
