@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+          - os: macos-latest
+            platform: mac
+          - os: ubuntu-latest
+            platform: linux
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: |
+          if [ "${{ matrix.platform }}" == "win" ]; then
+            npm run dist:win
+          elif [ "${{ matrix.platform }}" == "mac" ]; then
+            npm run dist:mac
+          elif [ "${{ matrix.platform }}" == "linux" ]; then
+            npm run dist:linux
+          fi
+        shell: bash
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          path: dist/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release-files
+          # 复制所有构建产物到 release-files 目录
+          find artifacts/ -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \) -exec cp {} release-files/ \;
+          ls -la release-files/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: VR Player ${{ github.ref_name }}
+          body: |
+            ## VR Player ${{ github.ref_name }}
+            
+            ### 📦 平台支持
+            
+            **Windows:**
+            - 支持 Windows 10/11 (x64/x86)
+            - 提供安装程序 (.exe) 和便携版 (.zip)
+            
+            **macOS:**
+            - 支持 macOS 10.15+ (Intel/Apple Silicon)
+            - 提供 DMG 安装包和 ZIP 便携版
+            
+            **Linux:**
+            - 支持 64-bit Linux 发行版
+            - 提供 AppImage、DEB 和 RPM 格式
+            
+            ### 🚀 功能特性
+            - 🎥 支持 360° VR 视频播放
+            - 🎮 完整的播放控制
+            - 🌐 多语言支持 (中文/英文)
+            - 🖥️ 跨平台支持
+            
+            ### 📋 使用方法
+            1. 下载对应平台的安装包
+            2. 安装并运行 VR Player
+            3. 打开 VR 视频文件开始享受沉浸式体验
+            
+            ### 🐛 问题反馈
+            如果您在使用过程中遇到任何问题，请在 [Issues](../../issues) 页面反馈。
+          files: release-files/*
+          draft: false
+          prerelease: false 
