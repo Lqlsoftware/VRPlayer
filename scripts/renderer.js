@@ -175,6 +175,9 @@ class VRPlayer {
             });
         }
 
+        // Setup control bar drag functionality
+        this.setupControlBarDrag();
+
         // File operation buttons
         document.getElementById('open-file-btn').addEventListener('click', () => this.openFile());
         document.getElementById('open-folder-btn').addEventListener('click', () => this.openFolder());
@@ -313,6 +316,207 @@ class VRPlayer {
             this.hideDragIndicator();
             this.handleFileDrop(e);
         });
+    }
+
+    setupControlBarDrag() {
+        const controlBar = document.querySelector('.control-bar');
+        const videoControls = document.getElementById('video-controls');
+        
+        if (!controlBar || !videoControls) return;
+        
+        // Initialize position tracking
+        this.controlBarDragData = {
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            offsetX: 0,
+            offsetY: 0,
+            initialTransform: null,
+            currentX: 0,
+            currentY: 0
+        };
+        
+        controlBar.addEventListener('mousedown', (e) => {
+            // Check if the click is on a button or input element
+            const target = e.target;
+            const isButton = target.tagName === 'BUTTON' || 
+                           target.tagName === 'INPUT' || 
+                           target.closest('.control-btn') ||
+                           target.closest('.progress-bar') ||
+                           target.closest('.volume-bar') ||
+                           target.closest('button') ||
+                           target.closest('input');
+            
+            // If clicking on a button, don't start dragging
+            if (isButton) {
+                return;
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            this.controlBarDragData.isDragging = true;
+            
+            // Get current control bar position
+            const rect = videoControls.getBoundingClientRect();
+            
+            // Calculate offset from mouse to control bar center
+            this.controlBarDragData.startX = e.clientX;
+            this.controlBarDragData.startY = e.clientY;
+            this.controlBarDragData.offsetX = e.clientX - (rect.left + rect.width / 2);
+            this.controlBarDragData.offsetY = e.clientY - (rect.top + rect.height / 2);
+            
+            // Store initial transform and current position
+            this.controlBarDragData.initialTransform = videoControls.style.transform || '';
+            
+            // Parse current position from transform if it exists
+            if (this.controlBarDragData.initialTransform) {
+                // Handle both formats: "translateX(-50%) translate(x, y)" and "translate(x, y)"
+                const translateMatches = this.controlBarDragData.initialTransform.match(/translate\(([^)]+)\)/g);
+                if (translateMatches && translateMatches.length > 0) {
+                    // Get the last translate() which should be the position offset
+                    const lastTranslate = translateMatches[translateMatches.length - 1];
+                    const values = lastTranslate.match(/translate\(([^)]+)\)/)[1].split(',').map(v => parseFloat(v.trim()));
+                    this.controlBarDragData.currentX = values[0] || 0;
+                    this.controlBarDragData.currentY = values[1] || 0;
+                } else {
+                    this.controlBarDragData.currentX = 0;
+                    this.controlBarDragData.currentY = 0;
+                }
+            } else {
+                this.controlBarDragData.currentX = 0;
+                this.controlBarDragData.currentY = 0;
+            }
+            
+            // Add dragging class
+            controlBar.classList.add('dragging');
+            
+            // Prevent text selection
+            document.body.style.userSelect = 'none';
+            
+            document.addEventListener('mousemove', this.handleControlBarDrag);
+            document.addEventListener('mouseup', this.handleControlBarDragEnd);
+        });
+        
+        // Store bound methods for cleanup
+        this.handleControlBarDrag = this.handleControlBarDrag.bind(this);
+        this.handleControlBarDragEnd = this.handleControlBarDragEnd.bind(this);
+    }
+    
+    handleControlBarDrag(e) {
+        if (!this.controlBarDragData.isDragging) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const videoControls = document.getElementById('video-controls');
+        if (!videoControls) return;
+        
+        // Calculate where the control bar center should be (mouse position - offset)
+        const targetCenterX = e.clientX - this.controlBarDragData.offsetX;
+        const targetCenterY = e.clientY - this.controlBarDragData.offsetY;
+        
+        // Get viewport dimensions
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        // Get control bar dimensions
+        const controlBar = videoControls.querySelector('.control-bar');
+        const controlBarWidth = controlBar.offsetWidth;
+        const controlBarHeight = controlBar.offsetHeight;
+        
+        // Calculate position constraints
+        const margin = 20;
+        const halfWidth = controlBarWidth / 2;
+        const halfHeight = controlBarHeight / 2;
+        
+        // Constrain the target center position to viewport bounds
+        const constrainedCenterX = Math.max(
+            margin + halfWidth,
+            Math.min(viewportWidth - margin - halfWidth, targetCenterX)
+        );
+        const constrainedCenterY = Math.max(
+            margin + halfHeight,
+            Math.min(viewportHeight - margin - halfHeight, targetCenterY)
+        );
+        
+        // Calculate the offset from the original position based on mode
+        let offsetX, offsetY;
+        
+        if (this.isVRMode) {
+            // In VR mode, the parent container (vr-controls-container) already handles centering
+            // So we just need to offset from the container's center position
+            const containerRect = videoControls.parentElement.getBoundingClientRect();
+            const containerCenterX = containerRect.left + containerRect.width / 2;
+            const containerCenterY = containerRect.top + containerRect.height / 2;
+            
+            offsetX = constrainedCenterX - containerCenterX;
+            offsetY = constrainedCenterY - containerCenterY;
+            
+            // Apply simple transform (parent container handles centering)
+            videoControls.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        } else if (this.isFullscreen) {
+            // In fullscreen mode, control bar is centered horizontally at bottom
+            const originalCenterX = viewportWidth / 2;
+            const originalCenterY = viewportHeight - 60; // Bottom position
+            
+            offsetX = constrainedCenterX - originalCenterX;
+            offsetY = constrainedCenterY - originalCenterY;
+            
+            // Apply transform maintaining the original centering
+            videoControls.style.transform = `translateX(-50%) translate(${offsetX}px, ${offsetY}px)`;
+        } else {
+            // In normal mode, calculate offset from original position
+            const containerRect = videoControls.parentElement.getBoundingClientRect();
+            const originalCenterX = containerRect.left + containerRect.width / 2;
+            const originalCenterY = containerRect.bottom - 60; // Default bottom position
+            
+            offsetX = constrainedCenterX - originalCenterX;
+            offsetY = constrainedCenterY - originalCenterY;
+            
+            // Apply transform
+            videoControls.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        }
+        
+        // Update position tracking
+        this.controlBarDragData.currentX = offsetX;
+        this.controlBarDragData.currentY = offsetY;
+    }
+    
+    handleControlBarDragEnd(e) {
+        if (!this.controlBarDragData.isDragging) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        this.controlBarDragData.isDragging = false;
+        
+        // Clean up
+        const controlBar = document.querySelector('.control-bar');
+        
+        if (controlBar) {
+            controlBar.classList.remove('dragging');
+        }
+        
+        // Restore text selection
+        document.body.style.userSelect = '';
+        
+        // Remove event listeners
+        document.removeEventListener('mousemove', this.handleControlBarDrag);
+        document.removeEventListener('mouseup', this.handleControlBarDragEnd);
+    }
+    
+    // Reset control bar position when switching modes
+    resetControlBarPosition() {
+        const videoControls = document.getElementById('video-controls');
+        if (videoControls) {
+            videoControls.style.transform = '';
+        }
+        
+        if (this.controlBarDragData) {
+            this.controlBarDragData.currentX = 0;
+            this.controlBarDragData.currentY = 0;
+        }
     }
 
     showDragIndicator() {
@@ -1177,6 +1381,9 @@ class VRPlayer {
                     videoControls.classList.add('fullscreen-controls');
                 }
                 
+                // Reset control bar position when entering fullscreen
+                this.resetControlBarPosition();
+                
                 // Start auto-hide controls
                 this.startControlsAutoHide();
                 
@@ -1209,6 +1416,9 @@ class VRPlayer {
                     videoControls.classList.remove('fullscreen-controls');
                     videoControls.classList.remove('hidden');
                 }
+                
+                // Reset control bar position when exiting fullscreen
+                this.resetControlBarPosition();
                 
                 // Stop auto-hide and show controls
                 this.stopControlsAutoHide();
@@ -1288,6 +1498,12 @@ class VRPlayer {
     handleMouseMove(e) {
         if (!this.isFullscreen && !this.isVRMode) return;
         
+        // In VR mode with mouse tracking enabled, don't restart auto-hide timer
+        // because mouse movement is used for camera control, not UI interaction
+        if (this.isVRMode && this.settings.mouseTracking) {
+            return;
+        }
+        
         // Debounce mechanism to avoid frequent timer resets
         const now = Date.now();
         if (this.lastMouseMoveTime && now - this.lastMouseMoveTime < 200) {
@@ -1320,6 +1536,12 @@ class VRPlayer {
         }
         
         if (!this.isFullscreen && !this.isVRMode) return;
+        
+        // In VR mode with mouse tracking enabled, only restart auto-hide timer
+        // for left click (button 0) as it's used for UI interaction
+        if (this.isVRMode && this.settings.mouseTracking && e.button !== 0) {
+            return;
+        }
         
         this.startControlsAutoHide();
     }
@@ -1397,6 +1619,9 @@ class VRPlayer {
         }
 
         this.setupVRControls();
+        
+        // Reset control bar position when entering VR mode
+        this.resetControlBarPosition();
         
         window.lastMouseX = 0;
         window.lastMouseY = 0;
@@ -1576,6 +1801,9 @@ class VRPlayer {
         }
         
         this.restoreNormalControls();
+        
+        // Reset control bar position when exiting VR mode
+        this.resetControlBarPosition();
         
         if (document.pointerLockElement && document.exitPointerLock) {
             document.exitPointerLock();

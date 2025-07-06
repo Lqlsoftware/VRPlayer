@@ -394,6 +394,13 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     flex-shrink: 0;
 }
 
+/* Control bar dragging state */
+.control-bar.dragging {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transform: scale(1.02);
+    transition: none;
+}
+
 /* Control bar right button group */
 .control-bar .right-controls {
     display: flex;
