@@ -49,7 +49,7 @@ class AppConfig {
 
             // UI settings
             ui: {
-                theme: 'default', // default, dark, light
+                theme: 'system', // system, light, dark
                 language: 'zh-CN',
                 showFileList: true,
                 showSettings: false,

@@ -62,16 +62,16 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
-  // Listen for system theme changes on macOS
-  if (process.platform === 'darwin') {
-    nativeTheme.on('updated', () => {
-      // Update the app icon when theme changes
-      const newIcon = getAppIcon();
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.setIcon(newIcon);
-      }
-    });
-  }
+  // Listen for system theme changes on all platforms
+  nativeTheme.on('updated', () => {
+    // Update the app icon when theme changes
+    const newIcon = getAppIcon();
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setIcon(newIcon);
+      // Notify renderer process about system theme change
+      mainWindow.webContents.send('system-theme-updated', nativeTheme.shouldUseDarkColors);
+    }
+  });
 }
 
 // Initialize app when ready
@@ -203,6 +203,10 @@ ipcMain.handle('get-app-version', () => {
 
 ipcMain.handle('get-platform', () => {
   return process.platform;
+});
+
+ipcMain.handle('get-system-theme', () => {
+  return nativeTheme.shouldUseDarkColors;
 });
 
 // Window control events

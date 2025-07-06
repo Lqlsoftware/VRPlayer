@@ -17,7 +17,8 @@ class VRPlayer {
             showPlaylist: false,
             mouseTracking: true,
             mouseSensitivity: 20,
-            language: 'zh-CN'
+            language: 'zh-CN',
+            theme: 'system'
         };
         this.vrMode = '180'; // VR mode: '360' or '180'
         this.monoMode = true; // Always show mono video to avoid compression
@@ -32,6 +33,7 @@ class VRPlayer {
         this.initSharedVideo();
         this.initLanguage();
         this.initPlatform();
+        this.applyTheme(this.settings.theme);
     }
 
     initLanguage() {
@@ -201,6 +203,10 @@ class VRPlayer {
         });
 
         // Settings events
+        document.getElementById('theme-select').addEventListener('change', (e) => {
+            this.updateSetting('theme', e.target.value);
+            this.applyTheme(e.target.value);
+        });
         document.getElementById('loop').addEventListener('change', (e) => this.updateSetting('loop', e.target.checked));
         document.getElementById('mouse-sensitivity').addEventListener('input', (e) => {
             this.updateSetting('mouseSensitivity', parseInt(e.target.value));
@@ -258,6 +264,18 @@ class VRPlayer {
         ipcRenderer.on('load-video-folder', (event, files) => this.loadVideoFolder(files));
         ipcRenderer.on('enter-vr-mode', () => this.enterVRMode());
         ipcRenderer.on('exit-vr-mode', () => this.exitVRMode());
+        
+        // Listen for system theme changes
+        ipcRenderer.on('system-theme-updated', (event, shouldUseDarkColors) => {
+            if (this.settings.theme === 'system') {
+                const body = document.body;
+                if (shouldUseDarkColors) {
+                    body.classList.add('dark-theme');
+                } else {
+                    body.classList.remove('dark-theme');
+                }
+            }
+        });
 
         // Language change event
         window.addEventListener('languageChanged', (event) => {
@@ -2007,6 +2025,47 @@ class VRPlayer {
 
         // Apply loop setting
         this.sharedVideoElement.loop = this.settings.loop;
+
+        // Apply theme setting
+        this.applyTheme(this.settings.theme);
+    }
+
+    applyTheme(theme) {
+        const body = document.body;
+        
+        // Remove existing theme classes
+        body.classList.remove('dark-theme', 'light-theme');
+        
+        switch(theme) {
+            case 'dark':
+                body.classList.add('dark-theme');
+                break;
+            case 'light':
+                // Light theme is the default, no additional class needed
+                break;
+            case 'system':
+                // Follow system theme
+                this.followSystemTheme();
+                break;
+        }
+    }
+
+    async followSystemTheme() {
+        try {
+            // Check if we're on Mac and can detect system theme
+            const shouldUseDarkColors = await ipcRenderer.invoke('get-system-theme');
+            const body = document.body;
+            
+            if (shouldUseDarkColors) {
+                body.classList.add('dark-theme');
+            } else {
+                body.classList.remove('dark-theme');
+            }
+        } catch (error) {
+            console.error('Failed to get system theme:', error);
+            // Fallback to light theme
+            document.body.classList.remove('dark-theme');
+        }
     }
 
     loadSettings() {
@@ -2032,6 +2091,12 @@ class VRPlayer {
 
         // Update UI
         document.getElementById('loop').checked = this.settings.loop;
+
+        // Set theme select value
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect) {
+            themeSelect.value = this.settings.theme;
+        }
 
         // Set language select value
         const languageSelect = document.getElementById('language-select');
