@@ -80,11 +80,13 @@
 
 5. **构建应用**
    ```bash
-   # 打包应用
-   npm run pack
+   # 构建所有平台（Windows、macOS、Linux）
+   npm run dist:all
    
-   # 构建分发包
-   npm run dist
+   # 构建单个平台
+   npm run dist:win      # Windows
+   npm run dist:mac      # macOS
+   npm run dist:linux    # Linux
    ```
 
 ## 📝 使用说明

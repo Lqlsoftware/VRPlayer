@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, nativeTheme } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -9,6 +9,21 @@ app.commandLine.appendSwitch('enable-zero-copy');
 app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder,VaapiVideoEncoder,CanvasOopRasterization');
 
 let mainWindow;
+
+// Function to get the appropriate icon based on system theme
+function getAppIcon() {
+  if (process.platform === 'darwin') {
+    // On macOS, use theme-specific icons
+    if (nativeTheme.shouldUseDarkColors) {
+      return path.join(__dirname, 'assets/icon-macOS-Dark.icns');
+    } else {
+      return path.join(__dirname, 'assets/icon-macOS-Default.icns');
+    }
+  } else {
+    // On other platforms, use the default icon
+    return path.join(__dirname, 'assets/icon.png');
+  }
+}
 
 function createWindow() {
   // Create the browser window
@@ -25,7 +40,7 @@ function createWindow() {
       enableRemoteModule: true,
       webSecurity: false
     },
-    icon: path.join(__dirname, 'assets/icon.png'),
+    icon: getAppIcon(),
     show: false
   });
 
@@ -45,6 +60,17 @@ function createWindow() {
   // Open DevTools in development mode
   if (process.argv.includes('--dev')) {
     mainWindow.webContents.openDevTools();
+  }
+
+  // Listen for system theme changes on macOS
+  if (process.platform === 'darwin') {
+    nativeTheme.on('updated', () => {
+      // Update the app icon when theme changes
+      const newIcon = getAppIcon();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.setIcon(newIcon);
+      }
+    });
   }
 }
 

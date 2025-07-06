@@ -80,11 +80,13 @@
 
 5. **Build Application**
    ```bash
-   # Package application
-   npm run pack
+   # Build all platforms (Windows, macOS, Linux)
+   npm run dist:all
    
-   # Build distribution package
-   npm run dist
+   # Build single platform
+   npm run dist:win      # Windows
+   npm run dist:mac      # macOS
+   npm run dist:linux    # Linux
    ```
 
 ## 📝 Usage
