@@ -23,7 +23,7 @@ class VideoUtils {
             const stats = fs.statSync(filePath);
             const ext = path.extname(filePath).toLowerCase();
             const fileName = path.basename(filePath);
-            
+
             return {
                 path: filePath,
                 name: fileName,
@@ -46,11 +46,11 @@ class VideoUtils {
      */
     static formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
-        
+
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        
+
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
@@ -63,7 +63,7 @@ class VideoUtils {
         // Simple detection based on filename and extension
         const fileName = path.basename(filePath).toLowerCase();
         const keywords = ['360', 'vr', 'panorama', 'spherical'];
-        
+
         return keywords.some(keyword => fileName.includes(keyword));
     }
 
@@ -85,26 +85,26 @@ class VideoUtils {
      */
     static scanVideoFiles(dirPath) {
         const videoFiles = [];
-        
+
         try {
             const files = fs.readdirSync(dirPath);
-            
+
             files.forEach(file => {
                 const filePath = path.join(dirPath, file);
                 const stats = fs.statSync(filePath);
-                
+
                 if (stats.isFile() && this.isSupportedVideoFormat(filePath)) {
                     videoFiles.push(this.getVideoInfo(filePath));
                 }
             });
-            
+
             // Sort by filename
             videoFiles.sort((a, b) => a.name.localeCompare(b.name));
-            
+
         } catch (error) {
             console.error('Error scanning directory:', error);
         }
-        
+
         return videoFiles;
     }
 
@@ -116,16 +116,16 @@ class VideoUtils {
     static async validateVideoFile(filePath) {
         try {
             const stats = fs.statSync(filePath);
-            
+
             // Check if file size is reasonable (at least 1KB)
             if (stats.size < 1024) {
                 return false;
             }
-            
+
             // Check if file is readable
             const fd = fs.openSync(filePath, 'r');
             fs.closeSync(fd);
-            
+
             return true;
         } catch (error) {
             console.error('Error validating video file:', error);

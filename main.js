@@ -191,7 +191,7 @@ async function openVideoFolder() {
     const files = fs.readdirSync(folderPath)
       .filter(file => /\.(mp4|webm|avi|mov|mkv|m4v)$/i.test(file))
       .map(file => path.join(folderPath, file));
-    
+
     mainWindow.webContents.send('load-video-folder', files);
   }
 }

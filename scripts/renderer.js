@@ -21,7 +21,7 @@ class VRPlayer {
         };
         this.vrMode = '180'; // VR mode: '360' or '180'
         this.monoMode = true; // Always show mono video to avoid compression
-        
+
         this.init();
     }
 
@@ -57,11 +57,11 @@ class VRPlayer {
         if (this.platform === 'darwin') {
             // Apply Mac-specific styles
             document.body.classList.add('mac-platform');
-            
+
             // Hide minimize and close buttons on Mac
             const minimizeBtn = document.getElementById('minimize-btn');
             const closeBtn = document.getElementById('close-btn');
-            
+
             if (minimizeBtn) {
                 minimizeBtn.style.display = 'none';
             }
@@ -77,7 +77,7 @@ class VRPlayer {
             console.error('Shared video element not found');
             return;
         }
-        
+
         this.sharedVideoElement.addEventListener('loadedmetadata', () => this.onVideoLoaded());
         this.sharedVideoElement.addEventListener('timeupdate', () => this.updateProgress());
         this.sharedVideoElement.addEventListener('ended', () => this.onVideoEnded());
@@ -96,10 +96,10 @@ class VRPlayer {
         this.sharedVideoElement.addEventListener('canplay', () => {
             console.log('Video can play');
         });
-        
+
         this.sharedVideoElement.volume = 0.5;
         this.updateVolumeDisplay();
-        
+
         console.log('Shared video element initialized');
     }
 
@@ -109,7 +109,7 @@ class VRPlayer {
         const fullscreenBtn = document.getElementById('fullscreen-btn');
         const vrBtn = document.getElementById('vr-btn');
         const exitVrBtn = document.getElementById('exit-vr-btn');
-        
+
         if (playPauseBtn) {
             playPauseBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -117,7 +117,7 @@ class VRPlayer {
                 this.togglePlayPause();
             });
         }
-        
+
         const stopBtn = document.getElementById('stop-btn');
         if (stopBtn) {
             stopBtn.addEventListener('click', (e) => {
@@ -126,7 +126,7 @@ class VRPlayer {
                 this.stop();
             });
         }
-        
+
         if (fullscreenBtn) {
             fullscreenBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -134,7 +134,7 @@ class VRPlayer {
                 this.toggleFullscreen();
             });
         }
-        
+
         if (vrBtn) {
             vrBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -161,12 +161,12 @@ class VRPlayer {
         const volumeBar = document.getElementById('volume-bar');
         const volumeBtn = document.getElementById('volume-btn');
         const volumeDisplay = document.getElementById('volume-display');
-        
+
         if (volumeBar) {
             volumeBar.addEventListener('input', (e) => this.setVolume(e.target.value));
             volumeBar.addEventListener('change', (e) => this.setVolume(e.target.value));
         }
-        
+
         if (volumeBtn) {
             volumeBtn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -237,12 +237,12 @@ class VRPlayer {
         // Mouse events for fullscreen mode
         document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         document.addEventListener('mousedown', (e) => this.handleMouseInteraction(e));
-        
+
         // Listen for pointer lock state changes
         document.addEventListener('pointerlockchange', () => this.handlePointerLockChange());
         document.addEventListener('mozpointerlockchange', () => this.handlePointerLockChange());
         document.addEventListener('webkitpointerlockchange', () => this.handlePointerLockChange());
-        
+
         // Show control bar when clicking video area
         const videoElement = document.getElementById('video-element');
         if (videoElement) {
@@ -269,7 +269,7 @@ class VRPlayer {
         // Setup drag and drop for both normal and VR modes
         this.setupDragDropForElement('video-container');
         this.setupDragDropForElement('vr-scene');
-        
+
         // Also setup for the whole document as a fallback
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -297,7 +297,7 @@ class VRPlayer {
     setupDragDropForElement(elementId) {
         const element = document.getElementById(elementId);
         if (!element) return;
-        
+
         element.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -321,9 +321,9 @@ class VRPlayer {
     setupControlBarDrag() {
         const controlBar = document.querySelector('.control-bar');
         const videoControls = document.getElementById('video-controls');
-        
+
         if (!controlBar || !videoControls) return;
-        
+
         // Initialize position tracking
         this.controlBarDragData = {
             isDragging: false,
@@ -335,40 +335,40 @@ class VRPlayer {
             currentX: 0,
             currentY: 0
         };
-        
+
         controlBar.addEventListener('mousedown', (e) => {
             // Check if the click is on a button or input element
             const target = e.target;
-            const isButton = target.tagName === 'BUTTON' || 
-                           target.tagName === 'INPUT' || 
-                           target.closest('.control-btn') ||
-                           target.closest('.progress-bar') ||
-                           target.closest('.volume-bar') ||
-                           target.closest('button') ||
-                           target.closest('input');
-            
+            const isButton = target.tagName === 'BUTTON' ||
+                target.tagName === 'INPUT' ||
+                target.closest('.control-btn') ||
+                target.closest('.progress-bar') ||
+                target.closest('.volume-bar') ||
+                target.closest('button') ||
+                target.closest('input');
+
             // If clicking on a button, don't start dragging
             if (isButton) {
                 return;
             }
-            
+
             e.preventDefault();
             e.stopPropagation();
-            
+
             this.controlBarDragData.isDragging = true;
-            
+
             // Get current control bar position
             const rect = videoControls.getBoundingClientRect();
-            
+
             // Calculate offset from mouse to control bar center
             this.controlBarDragData.startX = e.clientX;
             this.controlBarDragData.startY = e.clientY;
             this.controlBarDragData.offsetX = e.clientX - (rect.left + rect.width / 2);
             this.controlBarDragData.offsetY = e.clientY - (rect.top + rect.height / 2);
-            
+
             // Store initial transform and current position
             this.controlBarDragData.initialTransform = videoControls.style.transform || '';
-            
+
             // Parse current position from transform if it exists
             if (this.controlBarDragData.initialTransform) {
                 // Handle both formats: "translateX(-50%) translate(x, y)" and "translate(x, y)"
@@ -387,49 +387,49 @@ class VRPlayer {
                 this.controlBarDragData.currentX = 0;
                 this.controlBarDragData.currentY = 0;
             }
-            
+
             // Add dragging class
             controlBar.classList.add('dragging');
-            
+
             // Prevent text selection
             document.body.style.userSelect = 'none';
-            
+
             document.addEventListener('mousemove', this.handleControlBarDrag);
             document.addEventListener('mouseup', this.handleControlBarDragEnd);
         });
-        
+
         // Store bound methods for cleanup
         this.handleControlBarDrag = this.handleControlBarDrag.bind(this);
         this.handleControlBarDragEnd = this.handleControlBarDragEnd.bind(this);
     }
-    
+
     handleControlBarDrag(e) {
         if (!this.controlBarDragData.isDragging) return;
-        
+
         e.preventDefault();
         e.stopPropagation();
-        
+
         const videoControls = document.getElementById('video-controls');
         if (!videoControls) return;
-        
+
         // Calculate where the control bar center should be (mouse position - offset)
         const targetCenterX = e.clientX - this.controlBarDragData.offsetX;
         const targetCenterY = e.clientY - this.controlBarDragData.offsetY;
-        
+
         // Get viewport dimensions
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        
+
         // Get control bar dimensions
         const controlBar = videoControls.querySelector('.control-bar');
         const controlBarWidth = controlBar.offsetWidth;
         const controlBarHeight = controlBar.offsetHeight;
-        
+
         // Calculate position constraints
         const margin = 20;
         const halfWidth = controlBarWidth / 2;
         const halfHeight = controlBarHeight / 2;
-        
+
         // Constrain the target center position to viewport bounds
         const constrainedCenterX = Math.max(
             margin + halfWidth,
@@ -439,30 +439,30 @@ class VRPlayer {
             margin + halfHeight,
             Math.min(viewportHeight - margin - halfHeight, targetCenterY)
         );
-        
+
         // Calculate the offset from the original position based on mode
         let offsetX, offsetY;
-        
+
         if (this.isVRMode) {
             // In VR mode, the parent container (vr-controls-container) already handles centering
             // So we just need to offset from the container's center position
             const containerRect = videoControls.parentElement.getBoundingClientRect();
             const containerCenterX = containerRect.left + containerRect.width / 2;
             const containerCenterY = containerRect.top + containerRect.height / 2;
-            
+
             offsetX = constrainedCenterX - containerCenterX;
             offsetY = constrainedCenterY - containerCenterY;
-            
+
             // Apply simple transform (parent container handles centering)
             videoControls.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
         } else if (this.isFullscreen) {
             // In fullscreen mode, control bar is centered horizontally at bottom
             const originalCenterX = viewportWidth / 2;
             const originalCenterY = viewportHeight - 60; // Bottom position
-            
+
             offsetX = constrainedCenterX - originalCenterX;
             offsetY = constrainedCenterY - originalCenterY;
-            
+
             // Apply transform maintaining the original centering
             videoControls.style.transform = `translateX(-50%) translate(${offsetX}px, ${offsetY}px)`;
         } else {
@@ -470,49 +470,49 @@ class VRPlayer {
             const containerRect = videoControls.parentElement.getBoundingClientRect();
             const originalCenterX = containerRect.left + containerRect.width / 2;
             const originalCenterY = containerRect.bottom - 60; // Default bottom position
-            
+
             offsetX = constrainedCenterX - originalCenterX;
             offsetY = constrainedCenterY - originalCenterY;
-            
+
             // Apply transform
             videoControls.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
         }
-        
+
         // Update position tracking
         this.controlBarDragData.currentX = offsetX;
         this.controlBarDragData.currentY = offsetY;
     }
-    
+
     handleControlBarDragEnd(e) {
         if (!this.controlBarDragData.isDragging) return;
-        
+
         e.preventDefault();
         e.stopPropagation();
-        
+
         this.controlBarDragData.isDragging = false;
-        
+
         // Clean up
         const controlBar = document.querySelector('.control-bar');
-        
+
         if (controlBar) {
             controlBar.classList.remove('dragging');
         }
-        
+
         // Restore text selection
         document.body.style.userSelect = '';
-        
+
         // Remove event listeners
         document.removeEventListener('mousemove', this.handleControlBarDrag);
         document.removeEventListener('mouseup', this.handleControlBarDragEnd);
     }
-    
+
     // Reset control bar position when switching modes
     resetControlBarPosition() {
         const videoControls = document.getElementById('video-controls');
         if (videoControls) {
             videoControls.style.transform = '';
         }
-        
+
         if (this.controlBarDragData) {
             this.controlBarDragData.currentX = 0;
             this.controlBarDragData.currentY = 0;
@@ -522,9 +522,9 @@ class VRPlayer {
     showDragIndicator() {
         const videoContainer = document.getElementById('video-container');
         const vrScene = document.getElementById('vr-scene');
-        
+
         const message = window.i18n ? window.i18n.t('messages.drop_video_here') : 'Drop video files here to play';
-        
+
         if (this.isVRMode && vrScene) {
             // In VR mode, show indicator on VR scene
             vrScene.style.outline = '3px dashed #667eea';
@@ -540,7 +540,7 @@ class VRPlayer {
     hideDragIndicator() {
         const videoContainer = document.getElementById('video-container');
         const vrScene = document.getElementById('vr-scene');
-        
+
         if (videoContainer) {
             videoContainer.style.border = 'none';
         }
@@ -573,7 +573,7 @@ class VRPlayer {
             `;
             document.body.appendChild(notification);
         }
-        
+
         // Check if video is currently playing
         if (this.currentVideo && this.isPlaying) {
             const currentFileName = this.currentVideo.split(/[\\/]/).pop();
@@ -599,19 +599,19 @@ class VRPlayer {
 
     handleFileDrop(e) {
         const files = Array.from(e.dataTransfer.files);
-        const videoFiles = files.filter(file => 
+        const videoFiles = files.filter(file =>
             /\.(mp4|webm|avi|mov|mkv|m4v)$/i.test(file.name)
         );
-        
+
         if (videoFiles.length === 0) {
             // Show error message for unsupported files
             this.showDropErrorMessage();
             return;
         }
-        
+
         // Show loading message
         this.showDropLoadingMessage();
-        
+
         // Load video(s) after a short delay to show the loading message
         setTimeout(() => {
             if (videoFiles.length === 1) {
@@ -625,7 +625,7 @@ class VRPlayer {
     showDropErrorMessage() {
         const errorMessage = window.i18n ? window.i18n.t('messages.unsupported_file_type') : 'Unsupported file type';
         const supportedMessage = window.i18n ? window.i18n.t('messages.supported_formats') : 'Supported formats: MP4, WebM, AVI, MOV, MKV, M4V';
-        
+
         let notification = document.getElementById('drag-notification');
         if (!notification) {
             notification = document.createElement('div');
@@ -648,13 +648,13 @@ class VRPlayer {
             `;
             document.body.appendChild(notification);
         }
-        
+
         notification.innerHTML = `
             <div style="font-size: 18px; margin-bottom: 10px;">${errorMessage}</div>
             <div style="font-size: 14px; opacity: 0.9;">${supportedMessage}</div>
         `;
         notification.style.display = 'block';
-        
+
         // Auto-hide after 3 seconds
         setTimeout(() => {
             if (notification) {
@@ -665,7 +665,7 @@ class VRPlayer {
 
     showDropLoadingMessage() {
         const loadingMessage = window.i18n ? window.i18n.t('messages.loading_video') : 'Loading video...';
-        
+
         let notification = document.getElementById('drag-notification');
         if (notification) {
             notification.innerHTML = `
@@ -681,7 +681,7 @@ class VRPlayer {
     }
 
     handleKeyPress(e) {
-        switch(e.code) {
+        switch (e.code) {
             case 'Space':
                 e.preventDefault();
                 this.togglePlayPause();
@@ -805,21 +805,21 @@ class VRPlayer {
     toggleMouseTracking() {
         this.settings.mouseTracking = !this.settings.mouseTracking;
         this.saveSettings();
-        
+
         window.isFirstMove = true;
         window.lastMouseX = 0;
         window.lastMouseY = 0;
-        
+
         const vrScene = document.getElementById('vr-scene');
         const videoControls = document.getElementById('video-controls');
-        
+
         if (this.settings.mouseTracking) {
             const message = window.i18n ? window.i18n.t('messages.mouse_tracking_enabled') : 'Mouse tracking: enabled';
             this.showTrackingStatus(message);
             if (vrScene) {
                 vrScene.style.cursor = 'none';
             }
-            
+
             const canvas = document.querySelector('a-scene canvas') || document.body;
             if (canvas && canvas.requestPointerLock) {
                 canvas.requestPointerLock();
@@ -830,14 +830,14 @@ class VRPlayer {
                 videoControls.style.pointerEvents = 'auto';
                 videoControls.style.opacity = '1';
                 videoControls.style.transition = 'opacity 0.3s ease';
-                
+
                 if (this.vrControlsMouseEnter) {
                     videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
                 }
                 if (this.vrControlsMouseLeave) {
                     videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
                 }
-                
+
                 this.vrControlsMouseEnter = () => {
                     videoControls.style.opacity = '1';
                     this.stopControlsAutoHide();
@@ -850,10 +850,10 @@ class VRPlayer {
                     }
                     this.startControlsAutoHide();
                 };
-                
+
                 videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
                 videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
-                
+
                 this.startControlsAutoHide();
             }
         } else {
@@ -862,7 +862,7 @@ class VRPlayer {
             if (vrScene) {
                 vrScene.style.cursor = 'default';
             }
-            
+
             if (document.pointerLockElement && document.exitPointerLock) {
                 document.exitPointerLock();
             }
@@ -872,24 +872,24 @@ class VRPlayer {
                 videoControls.style.pointerEvents = 'auto';
                 videoControls.style.opacity = '1';
                 videoControls.style.transition = 'opacity 0.3s ease';
-                
+
                 if (this.vrControlsMouseEnter) {
                     videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
                 }
                 if (this.vrControlsMouseLeave) {
                     videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
                 }
-                
+
                 this.vrControlsMouseEnter = () => {
                     this.stopControlsAutoHide();
                 };
                 this.vrControlsMouseLeave = () => {
                     this.startControlsAutoHide();
                 };
-                
+
                 videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
                 videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
-                
+
                 this.startControlsAutoHide();
             }
         }
@@ -914,11 +914,11 @@ class VRPlayer {
         `;
         statusElement.textContent = message;
         document.body.appendChild(statusElement);
-        
+
         setTimeout(() => {
             statusElement.style.opacity = '1';
         }, 10);
-        
+
         setTimeout(() => {
             statusElement.style.opacity = '0';
             setTimeout(() => {
@@ -931,16 +931,16 @@ class VRPlayer {
 
     toggleVRMode180360() {
         this.vrMode = this.vrMode === '360' ? '180' : '360';
-        
+
         this.updateVRModeGeometry();
-        
+
         const message = window.i18n ? window.i18n.t(`messages.mode_${this.vrMode}`) : `VR mode: ${this.vrMode}°`;
         this.showTrackingStatus(message);
-        
+
         if (this.vrMode === '180') {
             this.centerOnLeftEye(false);
         }
-        
+
         this.saveSettings();
     }
 
@@ -952,10 +952,10 @@ class VRPlayer {
             console.error('Videosphere element not found');
             return;
         }
-        
+
         const currentGeometry = videosphere.getAttribute('geometry') || {};
         const radius = currentGeometry.radius || 500;
-        
+
         if (this.vrMode === '180') {
             videosphere.setAttribute('geometry', {
                 radius: radius,
@@ -973,17 +973,17 @@ class VRPlayer {
                 thetaStart: 0
             });
         }
-        
+
         setTimeout(() => {
             this.applyMonoMode(videosphere);
         }, 100);
-        
+
         videosphere.setAttribute('material', {
             shader: 'flat'
         });
-        
+
         this.updateVRModeStatus();
-        
+
         if (this.vrMode === '180') {
             this.centerOnLeftEye(false);
         }
@@ -992,21 +992,21 @@ class VRPlayer {
     updateVRModeStatus() {
         const vrModeText = document.getElementById('vr-mode-text');
         const vrModeIndicator = document.querySelector('.vr-mode-indicator');
-        
+
         if (vrModeText) {
             const monoText = window.i18n ? window.i18n.t('messages.mono_mode') : 'Mono';
             vrModeText.textContent = `${this.vrMode}° ${monoText}`;
         }
-        
+
         if (vrModeIndicator) {
             vrModeIndicator.classList.remove('mode-180', 'mode-360', 'mode-mono', 'mode-sbs', 'mode-tb');
-            
+
             if (this.vrMode === '180') {
                 vrModeIndicator.classList.add('mode-180');
             } else {
                 vrModeIndicator.classList.add('mode-360');
             }
-            
+
             vrModeIndicator.classList.add('mode-mono');
         }
     }
@@ -1020,17 +1020,17 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         try {
             this.currentVideo = filePath;
             this.sharedVideoElement.src = `file://${filePath}`;
-            
+
             const isVRByName = this.isVRVideo(filePath);
-            
+
             if (isVRByName) {
                 const detectedMode = this.detectVRMode(filePath);
                 this.vrMode = detectedMode;
-                
+
                 setTimeout(() => {
                     if (!this.isVRMode) {
                         this.enterVRMode();
@@ -1039,7 +1039,7 @@ class VRPlayer {
                     }
                 }, 500);
             }
-            
+
             this.sharedVideoElement.addEventListener('loadedmetadata', () => {
                 if (!isVRByName && this.checkVideoResolution()) {
                     console.log('VR video detected by resolution, preparing to enter VR mode');
@@ -1051,16 +1051,16 @@ class VRPlayer {
                     }, 100);
                 }
             }, { once: true });
-            
+
             if (this.isVRMode) {
                 this.updateVRVideoSource();
             }
-            
+
             this.showVideoPlayer();
             this.addToPlaylist(filePath);
-            
+
             this.play();
-            
+
         } catch (error) {
             console.error('Error loading video:', error);
         }
@@ -1069,7 +1069,7 @@ class VRPlayer {
     loadVideoFolder(files) {
         this.videoList = files;
         this.currentIndex = 0;
-        
+
         if (files.length > 0) {
             this.loadVideo(files[0]);
             this.updatePlaylist();
@@ -1091,7 +1091,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         try {
             if (this.sharedVideoElement.paused) {
                 this.play();
@@ -1108,7 +1108,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         try {
             const playPromise = this.sharedVideoElement.play();
             if (playPromise) {
@@ -1137,7 +1137,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         try {
             this.sharedVideoElement.pause();
             this.isPlaying = false;
@@ -1152,20 +1152,20 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         try {
             this.sharedVideoElement.pause();
             this.sharedVideoElement.currentTime = 0;
             this.isPlaying = false;
             this.updatePlayButton();
             this.updateProgress();
-            
+
             this.showPlaceholder();
-            
+
             if (this.isVRMode) {
                 this.exitVRMode();
             }
-            
+
         } catch (error) {
             console.error('Error stopping video:', error);
         }
@@ -1176,7 +1176,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         if (this.sharedVideoElement.duration) {
             const newTime = (value / 100) * this.sharedVideoElement.duration;
             this.sharedVideoElement.currentTime = newTime;
@@ -1188,7 +1188,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         this.sharedVideoElement.currentTime += seconds;
     }
 
@@ -1197,7 +1197,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         const newVolume = Math.max(0, Math.min(1, this.sharedVideoElement.volume + delta));
         this.sharedVideoElement.volume = newVolume;
         this.updateVolumeDisplay();
@@ -1208,7 +1208,7 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         const volume = Math.max(0, Math.min(100, value)) / 100;
         this.sharedVideoElement.volume = volume;
         this.updateVolumeDisplay();
@@ -1219,22 +1219,22 @@ class VRPlayer {
             console.error('Shared video element not initialized');
             return;
         }
-        
+
         this.sharedVideoElement.muted = !this.sharedVideoElement.muted;
         this.updateVolumeDisplay();
     }
 
     updateVolumeDisplay() {
         if (!this.sharedVideoElement) return;
-        
+
         const volumeBar = document.getElementById('volume-bar');
         const volumeDisplay = document.getElementById('volume-display');
         const volumeBtn = document.getElementById('volume-btn');
-        
+
         if (volumeBar) {
             volumeBar.value = this.sharedVideoElement.volume * 100;
         }
-        
+
         if (volumeDisplay) {
             if (this.sharedVideoElement.muted) {
                 const mutedText = window.i18n ? window.i18n.t('messages.muted') : 'Muted';
@@ -1243,7 +1243,7 @@ class VRPlayer {
                 volumeDisplay.textContent = Math.round(this.sharedVideoElement.volume * 100) + '%';
             }
         }
-        
+
         if (volumeBtn) {
             if (this.sharedVideoElement.muted || this.sharedVideoElement.volume === 0) {
                 volumeBtn.classList.add('muted');
@@ -1270,7 +1270,7 @@ class VRPlayer {
         } else {
             container = document.getElementById('video-container');
         }
-        
+
         if (!document.fullscreenElement) {
             container.requestFullscreen().catch(err => {
                 console.error('Cannot enter fullscreen mode:', err);
@@ -1283,17 +1283,17 @@ class VRPlayer {
     }
 
     handleFullscreenChange() {
-        const isFullscreen = !!(document.fullscreenElement || 
-                               document.webkitFullscreenElement || 
-                               document.mozFullScreenElement || 
-                               document.msFullscreenElement);
-        
+        const isFullscreen = !!(document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement ||
+            document.msFullscreenElement);
+
         this.isFullscreen = isFullscreen;
-        
+
         if (this.isVRMode) {
             const vrScene = document.getElementById('vr-scene');
             const aScene = document.querySelector('a-scene');
-            
+
             if (isFullscreen) {
                 console.log('VR mode entering fullscreen');
                 // Force recalculate VR scene size
@@ -1305,7 +1305,7 @@ class VRPlayer {
                     vrScene.style.left = '0';
                     vrScene.style.zIndex = '1000';
                 }
-                
+
                 // Recalculate A-Frame scene size
                 if (aScene && aScene.renderer) {
                     setTimeout(() => {
@@ -1325,7 +1325,7 @@ class VRPlayer {
                     vrScene.style.left = '0';
                     vrScene.style.zIndex = '1000';
                 }
-                
+
                 // Recalculate A-Frame scene size
                 if (aScene && aScene.renderer) {
                     setTimeout(() => {
@@ -1335,7 +1335,7 @@ class VRPlayer {
                     }, 100);
                 }
             }
-            
+
             // Trigger window resize event
             window.dispatchEvent(new Event('resize'));
         } else {
@@ -1344,7 +1344,7 @@ class VRPlayer {
                 console.log('Normal video mode entering fullscreen');
                 // Enter fullscreen
                 document.body.style.overflow = 'hidden';
-                
+
                 // Make video container fill screen
                 const videoContainer = document.getElementById('video-container');
                 if (videoContainer) {
@@ -1356,42 +1356,42 @@ class VRPlayer {
                     videoContainer.style.zIndex = '9999';
                     videoContainer.style.background = '#000';
                 }
-                
+
                 // Hide toolbar
                 const toolbar = document.querySelector('.toolbar');
                 if (toolbar) {
                     toolbar.style.display = 'none';
                 }
-                
+
                 // Hide playlist
                 const fileList = document.getElementById('file-list');
                 if (fileList) {
                     fileList.style.display = 'none';
                 }
-                
+
                 // Hide settings panel
                 const settingsPanel = document.getElementById('settings-panel');
                 if (settingsPanel) {
                     settingsPanel.style.display = 'none';
                 }
-                
+
                 // Adjust video controls position (non-VR mode only)
                 const videoControls = document.getElementById('video-controls');
                 if (videoControls && !this.isVRMode) {
                     videoControls.classList.add('fullscreen-controls');
                 }
-                
+
                 // Reset control bar position when entering fullscreen
                 this.resetControlBarPosition();
-                
+
                 // Start auto-hide controls
                 this.startControlsAutoHide();
-                
+
             } else {
                 console.log('Normal video mode exiting fullscreen');
                 // Exit fullscreen
                 document.body.style.overflow = 'auto';
-                
+
                 // Restore video container
                 const videoContainer = document.getElementById('video-container');
                 if (videoContainer) {
@@ -1403,23 +1403,23 @@ class VRPlayer {
                     videoContainer.style.zIndex = 'auto';
                     videoContainer.style.background = '#000';
                 }
-                
+
                 // Show toolbar
                 const toolbar = document.querySelector('.toolbar');
                 if (toolbar) {
                     toolbar.style.display = 'flex';
                 }
-                
+
                 // Restore video controls position (non-VR mode only)
                 const videoControls = document.getElementById('video-controls');
                 if (videoControls && !this.isVRMode) {
                     videoControls.classList.remove('fullscreen-controls');
                     videoControls.classList.remove('hidden');
                 }
-                
+
                 // Reset control bar position when exiting fullscreen
                 this.resetControlBarPosition();
-                
+
                 // Stop auto-hide and show controls
                 this.stopControlsAutoHide();
                 this.showControls();
@@ -1429,11 +1429,11 @@ class VRPlayer {
 
     startControlsAutoHide() {
         if (!this.isFullscreen && !this.isVRMode) return;
-        
+
         this.clearControlsHideTimer();
-        
+
         this.showControls();
-        
+
         this.controlsHideTimer = setTimeout(() => {
             this.hideControls();
         }, this.controlsHideDelay);
@@ -1463,7 +1463,7 @@ class VRPlayer {
                 this.controlsVisible = true;
             }
         }
-        
+
         if (this.isFullscreen && !this.isVRMode) {
             document.body.style.cursor = 'default';
         } else if (this.isVRMode && !this.settings.mouseTracking) {
@@ -1486,7 +1486,7 @@ class VRPlayer {
                 console.log('Fullscreen mode: Added hidden class');
             }
         }
-        
+
         if (this.isFullscreen && !this.isVRMode) {
             document.body.style.cursor = 'none';
         } else if (this.isVRMode && this.settings.mouseTracking) {
@@ -1497,26 +1497,26 @@ class VRPlayer {
     // Handle mouse move events
     handleMouseMove(e) {
         if (!this.isFullscreen && !this.isVRMode) return;
-        
+
         // In VR mode with mouse tracking enabled, don't restart auto-hide timer
         // because mouse movement is used for camera control, not UI interaction
         if (this.isVRMode && this.settings.mouseTracking) {
             return;
         }
-        
+
         // Debounce mechanism to avoid frequent timer resets
         const now = Date.now();
         if (this.lastMouseMoveTime && now - this.lastMouseMoveTime < 200) {
             return; // Ignore move events within 200ms
         }
         this.lastMouseMoveTime = now;
-        
+
         // Limit debug output frequency to avoid console spam
         if (!this.lastMouseMoveLog || now - this.lastMouseMoveLog > 1000) {
             console.log('Mouse move event (valid)', { isFullscreen: this.isFullscreen, isVRMode: this.isVRMode });
             this.lastMouseMoveLog = now;
         }
-        
+
         // Restart auto-hide timer
         this.startControlsAutoHide();
     }
@@ -1534,39 +1534,39 @@ class VRPlayer {
             console.log('Mouse forward button: seeking forward 10 seconds');
             return;
         }
-        
+
         if (!this.isFullscreen && !this.isVRMode) return;
-        
+
         // In VR mode with mouse tracking enabled, only restart auto-hide timer
         // for left click (button 0) as it's used for UI interaction
         if (this.isVRMode && this.settings.mouseTracking && e.button !== 0) {
             return;
         }
-        
+
         this.startControlsAutoHide();
     }
 
     handleKeyInteraction(e) {
         if (!this.isFullscreen && !this.isVRMode) return;
-        
+
         this.startControlsAutoHide();
     }
-    
+
     handlePointerLockChange() {
         const isPointerLocked = document.pointerLockElement !== null;
-        
+
         if (this.isVRMode && this.settings.mouseTracking && !isPointerLocked) {
             console.log('Pointer lock exited, disabling mouse tracking');
             this.settings.mouseTracking = false;
             this.saveSettings();
             const message = window.i18n ? window.i18n.t('messages.mouse_tracking_disabled') : 'Mouse tracking: disabled';
             this.showTrackingStatus(message);
-            
+
             const vrScene = document.getElementById('vr-scene');
             if (vrScene) {
                 vrScene.style.cursor = 'default';
             }
-            
+
             const videoControls = document.getElementById('video-controls');
             if (videoControls) {
                 if (this.vrControlsMouseEnter) {
@@ -1575,17 +1575,17 @@ class VRPlayer {
                 if (this.vrControlsMouseLeave) {
                     videoControls.removeEventListener('mouseleave', this.vrControlsMouseLeave);
                 }
-                
+
                 this.vrControlsMouseEnter = () => {
                     this.stopControlsAutoHide();
                 };
                 this.vrControlsMouseLeave = () => {
                     this.startControlsAutoHide();
                 };
-                
+
                 videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
                 videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
-                
+
                 this.startControlsAutoHide();
             }
         }
@@ -1602,52 +1602,52 @@ class VRPlayer {
     enterVRMode() {
         document.body.classList.add('vr-mode');
         this.isVRMode = true;
-        
+
         this.settings.mouseTracking = false;
         this.toggleMouseTracking();
 
         this.hideMainInterface();
-        
+
         const vrScene = document.getElementById('vr-scene');
         if (vrScene) {
             vrScene.style.display = 'block';
             vrScene.offsetHeight;
         }
-        
+
         if (!window.vrScene) {
             initVRMode();
         }
 
         this.setupVRControls();
-        
+
         // Reset control bar position when entering VR mode
         this.resetControlBarPosition();
-        
+
         window.lastMouseX = 0;
         window.lastMouseY = 0;
         window.isFirstMove = true;
-        
+
         bindMouseEvents();
-        
+
         this.updateVRButtonStates(true);
-        
+
         this.updateVRVideoSource();
         this.setupVRScene();
-        
+
         const scene = document.querySelector('a-scene');
         if (scene && !scene.isPlaying) {
             scene.play();
         }
-        
+
         if (scene && scene.renderer) {
             scene.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             scene.renderer.setSize(window.innerWidth, window.innerHeight);
             scene.renderer.shadowMap.enabled = false;
             scene.renderer.shadowMap.type = 0;
         }
-        
+
         this.enableHardwareAcceleration();
-        
+
         setTimeout(() => {
             if (scene && scene.renderer) {
                 scene.renderer.render(scene.object3D, scene.camera);
@@ -1655,10 +1655,10 @@ class VRPlayer {
             }
             this.updateProgress();
         }, 100);
-        
+
         this.showVRModeNotification();
         this.updateVRModeStatus();
-        
+
         setTimeout(() => {
             this.updateProgress();
             if (this.settings.showPlaylist && this.videoList.length > 0) {
@@ -1680,16 +1680,16 @@ class VRPlayer {
         const videoControls = document.getElementById('video-controls');
         const vrControlsContainer = document.getElementById('vr-controls-container');
         const vrScene = document.getElementById('vr-scene');
-        
+
         if (videoControls && vrControlsContainer) {
             vrControlsContainer.appendChild(videoControls);
-            
+
             videoControls.style.display = 'block';
             videoControls.style.visibility = 'visible';
             videoControls.style.pointerEvents = 'auto';
             videoControls.style.opacity = '1';
             videoControls.style.transition = 'opacity 0.3s ease';
-            
+
             this.vrControlsMouseEnter = () => {
                 if (this.settings.mouseTracking) {
                     videoControls.style.opacity = '1';
@@ -1698,21 +1698,21 @@ class VRPlayer {
                     this.stopControlsAutoHide();
                 }
             };
-            
+
             this.vrControlsMouseLeave = () => {
                 if (this.settings.mouseTracking) {
                     videoControls.style.opacity = this.controlsVisible ? '1' : '0';
                 }
                 this.startControlsAutoHide();
             };
-            
+
             videoControls.addEventListener('mouseenter', this.vrControlsMouseEnter);
             videoControls.addEventListener('mouseleave', this.vrControlsMouseLeave);
-            
+
             if (vrScene) {
                 vrScene.style.cursor = this.settings.mouseTracking ? 'none' : 'default';
             }
-            
+
             this.startControlsAutoHide();
         }
     }
@@ -1720,7 +1720,7 @@ class VRPlayer {
     updateVRButtonStates(isActive) {
         const vrBtn = document.getElementById('vr-btn');
         const exitVrBtn = document.getElementById('exit-vr-btn');
-        
+
         if (vrBtn) {
             vrBtn.classList.toggle('vr-active', isActive);
         }
@@ -1753,10 +1753,10 @@ class VRPlayer {
 
         // Check if auto-entered VR mode due to VR video detection
         const isAutoEntered = this.isVRVideo(this.currentVideo) || this.checkVideoResolution();
-        
+
         const monoText = window.i18n ? window.i18n.t('messages.mono_mode') : 'Mono';
         const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | K Tracking | I Toggle 180/360° | Mouse Wheel Zoom';
-        
+
         if (isAutoEntered) {
             const autoDetectedText = window.i18n ? window.i18n.t('messages.vr_auto_detected') : '🎯 VR video detected, automatically entered VR mode (mono display)';
             notification.innerHTML = `
@@ -1773,9 +1773,9 @@ class VRPlayer {
                 </div>
             `;
         }
-        
+
         document.body.appendChild(notification);
-        
+
         // Auto-remove after 3 seconds
         setTimeout(() => {
             if (notification.parentNode) {
@@ -1787,30 +1787,30 @@ class VRPlayer {
     exitVRMode() {
         document.body.classList.remove('vr-mode');
         this.isVRMode = false;
-        
+
         this.stopControlsAutoHide();
-        
+
         const videoContainer = document.getElementById('video-container');
         if (videoContainer) {
             videoContainer.style.display = 'block';
         }
-        
+
         const vrScene = document.getElementById('vr-scene');
         if (vrScene) {
             vrScene.style.display = 'none';
         }
-        
+
         this.restoreNormalControls();
-        
+
         // Reset control bar position when exiting VR mode
         this.resetControlBarPosition();
-        
+
         if (document.pointerLockElement && document.exitPointerLock) {
             document.exitPointerLock();
         }
-        
+
         this.updateVRButtonStates(false);
-        
+
         if (this.settings.showPlaylist && this.videoList.length > 0) {
             this.updatePlaylist();
         }
@@ -1819,16 +1819,16 @@ class VRPlayer {
     restoreNormalControls() {
         const videoControls = document.getElementById('video-controls');
         const videoPlayer = document.getElementById('video-player');
-        
+
         if (videoControls && videoPlayer) {
             videoPlayer.appendChild(videoControls);
-            
+
             videoControls.style.opacity = '';
             videoControls.style.transition = '';
             videoControls.style.visibility = '';
             videoControls.style.pointerEvents = '';
             videoControls.style.display = '';
-            
+
             if (this.vrControlsMouseEnter) {
                 videoControls.removeEventListener('mouseenter', this.vrControlsMouseEnter);
             }
@@ -1843,16 +1843,16 @@ class VRPlayer {
     setupVRScene() {
         try {
             const scene = document.querySelector('a-scene');
-            
+
             if (!scene) {
                 console.error('A-Frame scene not found');
                 return;
             }
-            
+
             if (!scene.isPlaying) {
                 scene.play();
             }
-            
+
             if (scene.renderer) {
                 scene.renderer.setPixelRatio(window.devicePixelRatio);
                 scene.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1860,7 +1860,7 @@ class VRPlayer {
                 scene.renderer.shadowMap.enabled = false;
                 scene.renderer.shadowMap.type = 0;
             }
-            
+
             if (scene.hasLoaded) {
                 this.checkVideosphere();
             } else {
@@ -1868,13 +1868,13 @@ class VRPlayer {
                     this.checkVideosphere();
                 });
             }
-            
+
             setTimeout(() => {
                 if (scene && scene.renderer) {
                     scene.renderer.render(scene.object3D, scene.camera);
                 }
             }, 50);
-            
+
         } catch (error) {
             console.error('Error setting up VR scene:', error);
         }
@@ -1882,20 +1882,20 @@ class VRPlayer {
 
     checkVideosphere() {
         const videosphere = document.querySelector('a-videosphere');
-        
+
         if (videosphere && this.sharedVideoElement) {
             videosphere.setAttribute('src', '#video-element');
-            
+
             if (this.settings.loop) {
                 this.sharedVideoElement.loop = true;
             }
-            
+
             this.updateVRModeGeometry();
-            
+
             videosphere.addEventListener('materialtextureloaded', () => {
                 this.applyMonoMode(videosphere);
             });
-            
+
             setTimeout(() => {
                 this.applyMonoMode(videosphere);
             }, 200);
@@ -1927,7 +1927,7 @@ class VRPlayer {
                 scene.renderer.shadowMap.enabled = false;
                 scene.renderer.shadowMap.type = 0;
             }
-            
+
             const vrVideoAsset = document.getElementById('vr-video-asset');
             if (vrVideoAsset) {
                 vrVideoAsset.style.transform = 'translateZ(0)';
@@ -1941,7 +1941,7 @@ class VRPlayer {
     toggleSettings() {
         const settingsPanel = document.getElementById('settings-panel');
         const isVisible = settingsPanel.style.display !== 'none';
-        
+
         if (isVisible) {
             this.hideSettings();
         } else {
@@ -1953,7 +1953,7 @@ class VRPlayer {
         const settingsPanel = document.getElementById('settings-panel');
         settingsPanel.style.display = 'block';
         settingsPanel.classList.add('fade-in');
-        
+
         // Add outside click event
         setTimeout(() => {
             document.addEventListener('click', this.handleOutsideClick);
@@ -1963,7 +1963,7 @@ class VRPlayer {
     hideSettings() {
         const settingsPanel = document.getElementById('settings-panel');
         settingsPanel.style.display = 'none';
-        
+
         // Remove outside click event
         document.removeEventListener('click', this.handleOutsideClick);
     }
@@ -1974,21 +1974,21 @@ class VRPlayer {
         const fileList = document.getElementById('file-list');
         const vrFileList = document.getElementById('vr-file-list');
         const playlistBtn = document.getElementById('playlist-btn');
-        
+
         // If clicked outside settings panel and not settings button, hide settings panel
         if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
             this.hideSettings();
         }
-        
+
         // If clicked outside playlist and not playlist button, hide playlist
-        const isClickInsidePlaylist = (fileList && fileList.contains(e.target)) || 
-                                     (vrFileList && vrFileList.contains(e.target));
+        const isClickInsidePlaylist = (fileList && fileList.contains(e.target)) ||
+            (vrFileList && vrFileList.contains(e.target));
         const isClickPlaylistButton = (playlistBtn && playlistBtn.contains(e.target));
-        
+
         // Check if playlist is visible
-        const isPlaylistVisible = (fileList && fileList.style.display !== 'none') || 
-                                 (vrFileList && vrFileList.style.display !== 'none');
-        
+        const isPlaylistVisible = (fileList && fileList.style.display !== 'none') ||
+            (vrFileList && vrFileList.style.display !== 'none');
+
         if (!isClickInsidePlaylist && !isClickPlaylistButton && isPlaylistVisible) {
             this.hidePlaylist();
         }
@@ -2004,7 +2004,7 @@ class VRPlayer {
         if (!this.sharedVideoElement) {
             return;
         }
-        
+
         // Apply loop setting
         this.sharedVideoElement.loop = this.settings.loop;
     }
@@ -2014,12 +2014,12 @@ class VRPlayer {
         if (saved) {
             const savedSettings = JSON.parse(saved);
             this.settings = { ...this.settings, ...savedSettings };
-            
+
             // Load VR mode settings
             if (savedSettings.vrMode) {
                 this.vrMode = savedSettings.vrMode;
             }
-            
+
             // Handle legacy mouseSensitivity values (convert from 0-1 range to 0-100 range)
             if (savedSettings.mouseSensitivity !== undefined) {
                 if (savedSettings.mouseSensitivity <= 1.0) {
@@ -2029,31 +2029,31 @@ class VRPlayer {
                 }
             }
         }
-        
+
         // Update UI
         document.getElementById('loop').checked = this.settings.loop;
-        
+
         // Set language select value
         const languageSelect = document.getElementById('language-select');
         if (languageSelect) {
             languageSelect.value = this.settings.language;
         }
-        
+
         // Set playlist default to closed
         if (this.settings.showPlaylist === undefined) {
             this.settings.showPlaylist = false;
         }
-        
+
         // Initialize button states
         this.updateButtonStates();
     }
-    
+
     // Update button states
     updateButtonStates() {
         const playlistBtn = document.getElementById('playlist-btn');
         const vrBtn = document.getElementById('vr-btn');
         const exitVrBtn = document.getElementById('exit-vr-btn');
-        
+
         if (playlistBtn) {
             if (this.settings.showPlaylist) {
                 playlistBtn.classList.add('playlist-active');
@@ -2061,7 +2061,7 @@ class VRPlayer {
                 playlistBtn.classList.remove('playlist-active');
             }
         }
-        
+
         if (vrBtn) {
             if (this.isVRMode) {
                 vrBtn.classList.add('vr-active');
@@ -2096,16 +2096,16 @@ class VRPlayer {
     onLanguageChanged(language) {
         // Update VR mode status text
         this.updateVRModeStatus();
-        
+
         // Update language dropdown
         const languageSelect = document.getElementById('language-select');
         if (languageSelect) {
             languageSelect.value = language;
         }
-        
+
         // Update volume display for muted state
         this.updateVolumeDisplay();
-        
+
         // Update any dynamic content that may need refreshing
         this.updatePlaylist();
         this.updateVRPlaylist();
@@ -2126,11 +2126,11 @@ class VRPlayer {
     updatePlaylist() {
         const fileListContent = document.getElementById('file-list-content');
         const fileList = document.getElementById('file-list');
-        
+
         if (!fileListContent || !fileList) {
             return;
         }
-        
+
         if (this.videoList.length === 0) {
             fileList.style.display = 'none';
             return;
@@ -2139,9 +2139,9 @@ class VRPlayer {
         if (this.settings.showPlaylist) {
             fileList.style.display = 'block';
         }
-        
+
         fileListContent.innerHTML = '';
-        
+
         this.videoList.forEach((filePath, index) => {
             const fileName = filePath.split(/[\\/]/).pop();
             const fileItem = document.createElement('div');
@@ -2153,13 +2153,13 @@ class VRPlayer {
                     <div class="file-duration">--:--</div>
                 </div>
             `;
-            
+
             fileItem.addEventListener('click', () => {
                 this.currentIndex = index;
                 this.loadVideo(filePath);
                 this.updatePlaylist();
             });
-            
+
             fileListContent.appendChild(fileItem);
         });
     }
@@ -2171,7 +2171,7 @@ class VRPlayer {
         if (!vrFileListContent || !vrFileList) {
             return;
         }
-        
+
         if (this.videoList.length === 0) {
             vrFileList.style.display = 'none';
             return;
@@ -2180,9 +2180,9 @@ class VRPlayer {
         if (this.settings.showPlaylist) {
             vrFileList.style.display = 'block';
         }
-        
+
         vrFileListContent.innerHTML = '';
-        
+
         this.videoList.forEach((filePath, index) => {
             const fileName = filePath.split(/[\\/]/).pop();
             const fileItem = document.createElement('div');
@@ -2194,14 +2194,14 @@ class VRPlayer {
                     <div class="vr-file-duration">--:--</div>
                 </div>
             `;
-            
+
             fileItem.addEventListener('click', () => {
                 this.currentIndex = index;
                 this.loadVideo(filePath);
                 this.updateVRPlaylist();
                 this.updatePlaylist();
             });
-            
+
             vrFileListContent.appendChild(fileItem);
         });
     }
@@ -2229,7 +2229,7 @@ class VRPlayer {
         const buttons = [
             document.getElementById('play-pause-btn')
         ];
-        
+
         buttons.forEach(btn => {
             if (btn) {
                 if (this.isPlaying) {
@@ -2245,30 +2245,30 @@ class VRPlayer {
         if (!this.sharedVideoElement) {
             return;
         }
-        
+
         const progressBar = document.getElementById('progress-bar');
         const vrProgressBar = document.getElementById('vr-progress-bar');
         const timeDisplay = document.getElementById('time-display');
         const vrTimeDisplay = document.getElementById('vr-time-display');
-        
+
         if (this.sharedVideoElement.readyState >= 2) {
             const currentTime = this.sharedVideoElement.currentTime;
             const duration = this.sharedVideoElement.duration;
-            
+
             if (!isNaN(currentTime) && !isNaN(duration) && duration > 0) {
                 const percentage = (currentTime / duration) * 100;
-                
+
                 if (progressBar) {
                     progressBar.value = percentage;
                 }
                 if (vrProgressBar) {
                     vrProgressBar.value = percentage;
                 }
-                
+
                 const currentTimeText = this.formatTime(currentTime);
                 const totalTimeText = this.formatTime(duration);
                 const timeText = `${currentTimeText} / ${totalTimeText}`;
-                
+
                 if (timeDisplay) {
                     timeDisplay.textContent = timeText;
                 }
@@ -2296,7 +2296,7 @@ class VRPlayer {
         if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) {
             return '00:00:00';
         }
-        
+
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
         const remainingSeconds = Math.floor(seconds % 60);
@@ -2308,7 +2308,7 @@ class VRPlayer {
         this.updatePlaylist();
         this.updateVRPlaylist();
         this.updateVolumeDisplay();
-        
+
         // Hide drag notification if it's still showing
         this.hideDragNotification();
     }
@@ -2339,7 +2339,7 @@ class VRPlayer {
         this.updatePlayButton();
         this.updateProgress();
         this.updateVolumeDisplay();
-        
+
         if (document.getElementById('loop')) {
             document.getElementById('loop').checked = this.settings.loop;
             document.getElementById('mouse-sensitivity').value = this.settings.mouseSensitivity;
@@ -2349,9 +2349,9 @@ class VRPlayer {
 
     isVRVideo(filePath) {
         if (!filePath) return false;
-        
+
         const fileName = filePath.toLowerCase();
-        
+
         const vrKeywords = [
             'vr', '360', '180', 'sbs', 'side-by-side', 'sidebyside',
             'tb', 'top-bottom', 'topbottom', 'ou', 'over-under',
@@ -2365,92 +2365,92 @@ class VRPlayer {
             'virtual', 'reality', 'experience', 'immerse',
             'spatial', 'volumetric', 'ambisonics'
         ];
-        
+
         const matchedKeyword = vrKeywords.find(keyword => fileName.includes(keyword));
-        
+
         if (matchedKeyword) {
             console.log(`VR video detected by filename: "${fileName}" contains keyword "${matchedKeyword}"`);
             return true;
         }
-        
+
         console.log(`No VR keywords found in filename: "${fileName}"`);
         return false;
     }
 
     detectVRMode(filePath) {
         if (!filePath) return '180';
-        
+
         const fileName = filePath.toLowerCase();
-        
+
         const keywords360 = [
             '360', '360°', 'full360', 'full-360',
             '4k360', '8k360', '360p', '360vr', 'vr360',
             'spherical', 'equirectangular', 'full-sphere'
         ];
-        
+
         const keywords180 = [
             '180', '180°', 'half180', 'half-180',
             '4k180', '8k180', '180p', '180vr', 'vr180',
             'hemisphere', 'half-sphere', 'front180'
         ];
-        
+
         for (const keyword of keywords180) {
             if (fileName.includes(keyword)) {
                 console.log(`180 degree video detected: "${fileName}" contains keyword "${keyword}"`);
                 return '180';
             }
         }
-        
+
         for (const keyword of keywords360) {
             if (fileName.includes(keyword)) {
                 console.log(`360 degree video detected: "${fileName}" contains keyword "${keyword}"`);
                 return '360';
             }
         }
-        
+
         console.log(`No specific VR mode keywords detected, using default 180 degree mode: "${fileName}"`);
         return '180';
     }
 
     checkVideoResolution() {
         if (!this.sharedVideoElement) return false;
-        
+
         const video = this.sharedVideoElement;
-        
+
         if (video.readyState < 2) return false;
-        
+
         const width = video.videoWidth;
         const height = video.videoHeight;
-        
+
         if (width === 0 || height === 0) return false;
-        
+
         const aspectRatio = width / height;
-        
+
         const vrAspectRatios = [
             { ratio: 2.0, tolerance: 0.1, description: '360° panoramic video (2:1)' },
             { ratio: 1.0, tolerance: 0.1, description: '180° video (1:1)' },
-            { ratio: 16/9, tolerance: 0.05, description: '180° video (16:9)' },
-            { ratio: 4/3, tolerance: 0.05, description: '180° video (4:3)' },
-            { ratio: 32/9, tolerance: 0.2, description: 'SBS 16:9 stereo video' },
-            { ratio: 8/3, tolerance: 0.2, description: 'SBS 4:3 stereo video' },
+            { ratio: 16 / 9, tolerance: 0.05, description: '180° video (16:9)' },
+            { ratio: 4 / 3, tolerance: 0.05, description: '180° video (4:3)' },
+            { ratio: 32 / 9, tolerance: 0.2, description: 'SBS 16:9 stereo video' },
+            { ratio: 8 / 3, tolerance: 0.2, description: 'SBS 4:3 stereo video' },
             { ratio: 4.0, tolerance: 0.2, description: 'SBS 2:1 stereo video' },
-            { ratio: 16/18, tolerance: 0.1, description: 'TB 16:9 stereo video' },
-            { ratio: 4/6, tolerance: 0.1, description: 'TB 4:3 stereo video' },
+            { ratio: 16 / 18, tolerance: 0.1, description: 'TB 16:9 stereo video' },
+            { ratio: 4 / 6, tolerance: 0.1, description: 'TB 4:3 stereo video' },
             { ratio: 1.0, tolerance: 0.05, description: 'TB 1:1 stereo video' },
             { ratio: 1.33, tolerance: 0.05, description: '4:3 VR video' },
             { ratio: 1.78, tolerance: 0.05, description: '16:9 VR video' },
             { ratio: 2.35, tolerance: 0.1, description: 'Ultra-wide VR video' }
         ];
-        
-        const matchedRatio = vrAspectRatios.find(({ ratio, tolerance }) => 
+
+        const matchedRatio = vrAspectRatios.find(({ ratio, tolerance }) =>
             Math.abs(aspectRatio - ratio) < tolerance
         );
-        
+
         if (matchedRatio) {
             console.log(`VR video resolution detected: ${width}x${height} (${aspectRatio.toFixed(2)}:1) - ${matchedRatio.description}`);
             return true;
         }
-        
+
         return false;
     }
 
@@ -2458,9 +2458,9 @@ class VRPlayer {
         const fileList = document.getElementById('file-list');
         const vrFileList = document.getElementById('vr-file-list');
         const playlistBtn = document.getElementById('playlist-btn');
-        
+
         this.settings.showPlaylist = false;
-        
+
         if (fileList) {
             fileList.style.display = 'none';
         }
@@ -2470,9 +2470,9 @@ class VRPlayer {
         if (playlistBtn) {
             playlistBtn.classList.remove('playlist-active');
         }
-        
+
         document.removeEventListener('click', this.handleOutsideClick);
-        
+
         this.saveSettings();
     }
 
@@ -2480,10 +2480,10 @@ class VRPlayer {
         const fileList = document.getElementById('file-list');
         const vrFileList = document.getElementById('vr-file-list');
         const playlistBtn = document.getElementById('playlist-btn');
-        
-        const isVisible = (fileList && fileList.style.display !== 'none' && fileList.style.display !== '') || 
-                         (vrFileList && vrFileList.style.display !== 'none' && vrFileList.style.display !== '');
-        
+
+        const isVisible = (fileList && fileList.style.display !== 'none' && fileList.style.display !== '') ||
+            (vrFileList && vrFileList.style.display !== 'none' && vrFileList.style.display !== '');
+
         if (isVisible) {
             this.hidePlaylist();
         } else {
@@ -2495,29 +2495,29 @@ class VRPlayer {
         const fileList = document.getElementById('file-list');
         const vrFileList = document.getElementById('vr-file-list');
         const playlistBtn = document.getElementById('playlist-btn');
-        
+
         this.settings.showPlaylist = true;
-        
+
         if (this.videoList.length > 0) {
             if (fileList) {
                 fileList.style.display = 'block';
                 fileList.classList.add('fade-in');
                 this.updatePlaylist();
             }
-            
+
             if (vrFileList) {
                 vrFileList.style.display = 'none';
             }
-            
+
             if (playlistBtn) {
                 playlistBtn.classList.add('playlist-active');
             }
-            
+
             setTimeout(() => {
                 document.addEventListener('click', this.handleOutsideClick);
             }, 100);
         }
-        
+
         this.saveSettings();
     }
 
@@ -2532,13 +2532,13 @@ class VRPlayer {
             if (this.isVRMode) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 if (e.deltaY > 0) {
                     currentScale = Math.max(minScale, currentScale - scaleStep);
                 } else {
                     currentScale = Math.min(maxScale, currentScale + scaleStep);
                 }
-                
+
                 this.updateVRScale(currentScale);
             }
         });
@@ -2547,18 +2547,18 @@ class VRPlayer {
             if (this.isVRMode) {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 if (e.deltaY > 0) {
                     currentScale = Math.max(minScale, currentScale - scaleStep);
                 } else {
                     currentScale = Math.min(maxScale, currentScale + scaleStep);
                 }
-                
+
                 this.updateVRScale(currentScale);
             } else {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 if (e.deltaY > 0) {
                     this.adjustVolume(-0.05);
                 } else {
@@ -2573,13 +2573,13 @@ class VRPlayer {
                 if (this.isVRMode) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     if (e.deltaY > 0) {
                         currentScale = Math.max(minScale, currentScale - scaleStep);
-                } else {
+                    } else {
                         currentScale = Math.min(maxScale, currentScale + scaleStep);
                     }
-                    
+
                     this.updateVRScale(currentScale);
                 }
             });
@@ -2590,20 +2590,20 @@ class VRPlayer {
         const videosphere = document.querySelector('a-videosphere');
         const zoomLevel = document.getElementById('vr-zoom-level');
         const camera = document.querySelector('a-camera');
-        
+
         if (videosphere && camera) {
             try {
                 const baseFOV = 80;
                 const newFOV = baseFOV / scale;
                 camera.setAttribute('camera', `fov: ${newFOV}`);
-                
+
                 const baseDistance = 1.6;
                 const newDistance = baseDistance / scale;
                 camera.setAttribute('position', `0 ${newDistance} 0`);
-                
+
                 const baseRadius = 500;
                 const newRadius = baseRadius * scale;
-                
+
                 if (this.vrMode === '180') {
                     videosphere.setAttribute('geometry', {
                         radius: newRadius,
@@ -2621,13 +2621,13 @@ class VRPlayer {
                         thetaStart: 0
                     });
                 }
-                
+
                 console.log(`VR zoom: ${scale}, FOV: ${newFOV}, distance: ${newDistance}, radius: ${newRadius}, mode: ${this.vrMode}°`);
             } catch (error) {
                 console.error('Zoom setting failed:', error);
             }
         }
-        
+
         if (zoomLevel) {
             const percentage = Math.round(scale * 100);
             zoomLevel.textContent = `${percentage}%`;
@@ -2642,14 +2642,14 @@ function initVRMode() {
     try {
         vrScene = document.getElementById('vr-scene');
         vrVideo = document.getElementById('video-element');
-        
+
         if (!vrScene || !vrVideo) {
             console.error('VR initialization failed: missing elements');
             return;
         }
-        
+
         bindMouseEvents();
-        
+
     } catch (error) {
         console.error('VR mode initialization failed:', error);
     }
@@ -2660,7 +2660,7 @@ function bindMouseEvents() {
     window.lastMouseX = 0;
     window.lastMouseY = 0;
     window.isMouseDown = false;
-    
+
     if (window.vrMouseMoveHandler) {
         document.removeEventListener('mousemove', window.vrMouseMoveHandler);
     }
@@ -2673,7 +2673,7 @@ function bindMouseEvents() {
     if (window.vrClickHandler) {
         document.removeEventListener('click', window.vrClickHandler);
     }
-    
+
     window.vrMouseMoveHandler = (e) => {
         if (!isVRModeActive()) return;
 
@@ -2698,7 +2698,7 @@ function bindMouseEvents() {
 
         if (player.settings.mouseTracking || window.isMouseDown) {
             const sensitivity = (player.settings.mouseSensitivity / 100) * 0.5;
-            
+
             let deltaX, deltaY;
             if (document.pointerLockElement) {
                 deltaX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
@@ -2715,7 +2715,7 @@ function bindMouseEvents() {
                 window.lastMouseX = e.clientX;
                 window.lastMouseY = e.clientY;
             }
-            
+
             const currentRotation = camera.getAttribute('rotation');
             const newYaw = currentRotation.y - deltaX * sensitivity;
             const newPitch = Math.max(-90, Math.min(90, currentRotation.x - deltaY * sensitivity));
@@ -2723,35 +2723,35 @@ function bindMouseEvents() {
         }
     };
     document.addEventListener('mousemove', window.vrMouseMoveHandler);
-    
+
     window.vrMouseDownHandler = (e) => {
         if (!isVRModeActive()) return;
-        
+
         const target = e.target;
         const isInControlArea = target.closest('#video-controls') ||
-                               target.closest('.control-btn') ||
-                               target.closest('.progress-bar') ||
-                               target.closest('#vr-zoom-info') ||
-                               target.closest('.toolbar') ||
-                               target.closest('.toolbar-btn') ||
-                               target.closest('.toolbar-left') ||
-                               target.closest('.toolbar-right') ||
-                               target.closest('#file-list') ||
-                               target.closest('#settings-panel') ||
-                               target.closest('#vr-file-list');
-        
+            target.closest('.control-btn') ||
+            target.closest('.progress-bar') ||
+            target.closest('#vr-zoom-info') ||
+            target.closest('.toolbar') ||
+            target.closest('.toolbar-btn') ||
+            target.closest('.toolbar-left') ||
+            target.closest('.toolbar-right') ||
+            target.closest('#file-list') ||
+            target.closest('#settings-panel') ||
+            target.closest('#vr-file-list');
+
         if (isInControlArea) {
             return;
         }
-        
+
         if (player && e.button === 0 && closePanelsIfOpen()) {
             return;
         }
-        
+
         if (!player.settings.mouseTracking && e.button === 0) {
             window.isMouseDown = true;
             window.isFirstMove = true;
-            
+
             const canvas = document.querySelector('a-scene canvas') || document.body;
             if (canvas && canvas.requestPointerLock) {
                 canvas.requestPointerLock();
@@ -2759,35 +2759,35 @@ function bindMouseEvents() {
         }
     };
     document.addEventListener('mousedown', window.vrMouseDownHandler);
-    
+
     window.vrMouseUpHandler = (e) => {
         if (!isVRModeActive()) return;
         if (!player.settings.mouseTracking && e.button === 0) {
             window.isMouseDown = false;
-            
+
             if (document.pointerLockElement && document.exitPointerLock) {
                 document.exitPointerLock();
             }
         }
     };
     document.addEventListener('mouseup', window.vrMouseUpHandler);
-    
+
     window.vrClickHandler = (e) => {
         if (isVRModeActive()) {
             if (player && player.settings.mouseTracking) {
                 const target = e.target;
                 const isControlClick = target.closest('#video-controls') ||
-                                     target.closest('.control-btn') ||
-                                     target.closest('.progress-bar') ||
-                                     target.closest('#vr-zoom-info') ||
-                                     target.closest('.toolbar') ||
-                                     target.closest('.toolbar-btn') ||
-                                     target.closest('.toolbar-left') ||
-                                     target.closest('.toolbar-right') ||
-                                     target.closest('#file-list') ||
-                                     target.closest('#settings-panel') ||
-                                     target.closest('#vr-file-list');
-                
+                    target.closest('.control-btn') ||
+                    target.closest('.progress-bar') ||
+                    target.closest('#vr-zoom-info') ||
+                    target.closest('.toolbar') ||
+                    target.closest('.toolbar-btn') ||
+                    target.closest('.toolbar-left') ||
+                    target.closest('.toolbar-right') ||
+                    target.closest('#file-list') ||
+                    target.closest('#settings-panel') ||
+                    target.closest('#vr-file-list');
+
                 if (!isControlClick) {
                     closePanelsIfOpen();
                 }
@@ -2801,11 +2801,11 @@ function closePanelsIfOpen() {
     const fileList = document.getElementById('file-list');
     const settingsPanel = document.getElementById('settings-panel');
     const vrFileList = document.getElementById('vr-file-list');
-    
+
     const anyPanelOpen = (fileList && fileList.style.display !== 'none') ||
-                       (settingsPanel && settingsPanel.style.display !== 'none') ||
-                       (vrFileList && vrFileList.style.display !== 'none');
-    
+        (settingsPanel && settingsPanel.style.display !== 'none') ||
+        (vrFileList && vrFileList.style.display !== 'none');
+
     if (anyPanelOpen) {
         player.hideSettings();
         player.hidePlaylist();
