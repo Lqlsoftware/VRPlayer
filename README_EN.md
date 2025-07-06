@@ -10,6 +10,13 @@
   English | [中文](README.md)
 </div>
 
+## 📷 Screenshots
+
+<div align="center">
+  <img src="screenshots/vrplayer-readme-01.png" alt="Play normal video" width="400">
+  <img src="screenshots/vrplayer-readme-02.png" alt="Play VR video" width="400"> 
+</div>
+
 ## 📖 Table of Contents
 
 - [Features](#features)

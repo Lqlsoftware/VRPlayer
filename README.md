@@ -10,6 +10,13 @@
   [English](README_EN.md) | 中文
 </div>
 
+## 📷 应用截图
+
+<div align="center">
+  <img src="screenshots/vrplayer-readme-01.png" alt="VR Player 播放普通视频" width="400">
+  <img src="screenshots/vrplayer-readme-02.png" alt="VR Player 播放 VR 视频" width="400">
+</div>
+
 ## 📖 目录
 
 - [功能特性](#功能特性)
