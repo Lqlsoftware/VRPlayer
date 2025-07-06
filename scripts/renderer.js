@@ -230,6 +230,16 @@ class VRPlayer {
             this.switchLanguage(e.target.value);
         });
 
+        // VR Mode selection event listener
+        document.getElementById('vr-mode-select').addEventListener('change', (e) => {
+            this.updateSetting('vrMode', e.target.value);
+            this.vrMode = e.target.value;
+            // Update VR mode geometry if currently in VR mode
+            if (this.isVRMode) {
+                this.updateVRModeGeometry();
+            }
+        });
+
         // File list events
         document.getElementById('clear-list-btn').addEventListener('click', () => this.clearPlaylist());
         const vrClearListBtn = document.getElementById('vr-clear-list-btn');
@@ -951,6 +961,9 @@ class VRPlayer {
             this.centerOnLeftEye(false);
         }
 
+        // Update VR mode selection in settings panel if it's open
+        this.updateVRModeSelection();
+
         this.saveSettings();
     }
 
@@ -1040,6 +1053,12 @@ class VRPlayer {
             if (isVRByName) {
                 const detectedMode = this.detectVRMode(filePath);
                 this.vrMode = detectedMode;
+
+                // Update VR mode selection in settings panel
+                this.updateVRModeSelection();
+                
+                // Save the detected VR mode
+                this.saveSettings();
 
                 setTimeout(() => {
                     if (!this.isVRMode) {
@@ -1672,6 +1691,9 @@ class VRPlayer {
         this.showVRModeNotification();
         this.updateVRModeStatus();
 
+        // Update VR mode selection in settings panel
+        this.updateVRModeSelection();
+
         setTimeout(() => {
             this.updateProgress();
             if (this.settings.showPlaylist && this.videoList.length > 0) {
@@ -1970,6 +1992,9 @@ class VRPlayer {
         // Update VR zoom display when showing settings
         this.updateVRZoomDisplay();
 
+        // Update VR mode selection to reflect current state
+        this.updateVRModeSelection();
+
         // Add outside click event
         setTimeout(() => {
             document.addEventListener('click', this.handleOutsideClick);
@@ -2121,6 +2146,12 @@ class VRPlayer {
             languageSelect.value = this.settings.language;
         }
 
+        // Set VR mode select value
+        const vrModeSelect = document.getElementById('vr-mode-select');
+        if (vrModeSelect) {
+            vrModeSelect.value = this.vrMode;
+        }
+
         // Set playlist default to closed
         if (this.settings.showPlaylist === undefined) {
             this.settings.showPlaylist = false;
@@ -2184,6 +2215,9 @@ class VRPlayer {
         if (languageSelect) {
             languageSelect.value = language;
         }
+
+        // Update VR mode selection to reflect current state
+        this.updateVRModeSelection();
 
         // Update volume display for muted state
         this.updateVolumeDisplay();
@@ -2806,6 +2840,14 @@ class VRPlayer {
                 const multiplier = this.settings.vrZoomLevel / 100;
                 vrZoomValue.textContent = `${multiplier.toFixed(1)}x`;
             }
+        }
+    }
+
+    // Update VR mode selection to reflect current state
+    updateVRModeSelection() {
+        const vrModeSelect = document.getElementById('vr-mode-select');
+        if (vrModeSelect) {
+            vrModeSelect.value = this.vrMode;
         }
     }
 

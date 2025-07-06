@@ -36,6 +36,9 @@
     "loop": "Loop",
     "mouse_sensitivity": "Mouse Tracking Sensitivity",
     "vr_zoom_sensitivity": "VR Zoom",
+    "vr_mode": "VR Mode",
+    "vr_mode_180": "180° Mode (Mono)",
+    "vr_mode_360": "360° Mode (Mono)",
     "language": "Language",
     "chinese": "简体中文",
     "english": "English"

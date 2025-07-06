@@ -36,6 +36,9 @@
     "loop": "循环播放",
     "mouse_sensitivity": "鼠标追踪灵敏度",
     "vr_zoom_sensitivity": "VR 缩放",
+    "vr_mode": "VR 模式",
+    "vr_mode_180": "180° 模式 (单眼)",
+    "vr_mode_360": "360° 模式 (单眼)",
     "language": "语言",
     "chinese": "简体中文",
     "english": "English"
