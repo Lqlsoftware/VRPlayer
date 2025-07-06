@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # VR Player 发布脚本
-# 用法: ./scripts/release.sh [版本号]
-# 例如: ./scripts/release.sh 1.0.1
+# 用法: ./release.sh [版本号]
+# 例如: ./release.sh 1.0.1
 
 set -e
 
@@ -11,8 +11,8 @@ VERSION=$1
 
 if [ -z "$VERSION" ]; then
     echo "❌ 错误: 请提供版本号"
-    echo "用法: ./scripts/release.sh [版本号]"
-    echo "例如: ./scripts/release.sh 1.0.1"
+    echo "用法: ./release.sh [版本号]"
+    echo "例如: ./release.sh 1.0.1"
     exit 1
 fi
 
