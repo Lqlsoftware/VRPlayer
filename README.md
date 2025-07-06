@@ -225,12 +225,6 @@
 - [ ] 添加更多 VR 交互功能
 - [ ] 优化性能和内存使用
 
-## 📞 联系我们
-
-- 项目主页: [GitHub Repository]
-- 问题反馈: [GitHub Issues]
-- 讨论区: [GitHub Discussions]
-
 ---
 
 <div align="center">

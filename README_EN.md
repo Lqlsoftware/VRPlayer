@@ -225,12 +225,6 @@ We welcome contributions of all kinds! Please read the following guidelines:
 - [ ] Add more VR interaction features
 - [ ] Optimize performance and memory usage
 
-## 📞 Contact Us
-
-- Project Homepage: [GitHub Repository]
-- Issue Reports: [GitHub Issues]
-- Discussions: [GitHub Discussions]
-
 ---
 
 <div align="center">
