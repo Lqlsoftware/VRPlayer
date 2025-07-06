@@ -1310,7 +1310,8 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.setting-group #sensitivity-value {
+.setting-group #sensitivity-value,
+.setting-group #vr-zoom-value {
     color: #667eea;
     font-weight: bold;
     min-width: 30px;

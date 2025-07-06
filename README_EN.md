@@ -135,7 +135,7 @@
 | **F11** | Enter/Exit VR Mode |
 | **↑** / **↓** | Volume Control |
 | **←** / **→** / **Mouse Side Buttons** | Seek backward/forward 10 seconds |
-| **Ctrl+O** | Open File |
+| **Ctrl/Cmd+O** | Open File |
 
 ### VR Mode Specific Keys
 
@@ -146,6 +146,7 @@
 | **R** | Reset VR Zoom |
 | **V** | Reset VR View (default center to left eye) |
 | **C** | Center to Center Position |
+| **Ctrl/Cmd+Up/Down** | VR Mode Zoom |
 | **Escape** | Exit VR Mode |
 
 ## 🥽 VR Features

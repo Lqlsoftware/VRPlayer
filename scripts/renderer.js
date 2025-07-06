@@ -17,6 +17,7 @@ class VRPlayer {
             showPlaylist: false,
             mouseTracking: true,
             mouseSensitivity: 20,
+            vrZoomLevel: 100,
             language: 'zh-CN',
             theme: 'system'
         };
@@ -211,6 +212,18 @@ class VRPlayer {
         document.getElementById('mouse-sensitivity').addEventListener('input', (e) => {
             this.updateSetting('mouseSensitivity', parseInt(e.target.value));
             document.getElementById('sensitivity-value').textContent = e.target.value;
+        });
+        document.getElementById('vr-zoom-sensitivity').addEventListener('input', (e) => {
+            this.updateSetting('vrZoomLevel', parseInt(e.target.value));
+            const multiplier = parseInt(e.target.value) / 100;
+            document.getElementById('vr-zoom-value').textContent = `${multiplier.toFixed(1)}x`;
+
+            if (this.isVRMode) {
+                this.currentVRScale = multiplier;
+                this.updateVRScale(this.currentVRScale);
+                const message = window.i18n ? window.i18n.t('messages.vr_zoom') : 'VR Zoom';
+                this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`);
+            }
         });
         document.getElementById('language-select').addEventListener('change', (e) => {
             this.updateSetting('language', e.target.value);
@@ -716,11 +729,19 @@ class VRPlayer {
                 break;
             case 'ArrowUp':
                 e.preventDefault();
-                this.adjustVolume(0.1);
+                if ((e.ctrlKey || e.metaKey) && this.isVRMode) {
+                    this.adjustVRZoomByKeyboard(1);
+                } else {
+                    this.adjustVolume(0.1);
+                }
                 break;
             case 'ArrowDown':
                 e.preventDefault();
-                this.adjustVolume(-0.1);
+                if ((e.ctrlKey || e.metaKey) && this.isVRMode) {
+                    this.adjustVRZoomByKeyboard(-1);
+                } else {
+                    this.adjustVolume(-0.1);
+                }
                 break;
             case 'KeyM':
                 e.preventDefault();
@@ -785,7 +806,10 @@ class VRPlayer {
     }
 
     resetVRZoom() {
-        this.updateVRScale(1.0);
+        this.currentVRScale = this.settings.vrZoomLevel / 100;
+        this.updateVRScale(this.currentVRScale);
+        const message = window.i18n ? window.i18n.t('messages.vr_zoom_reset') : 'VR Zoom (Reset)';
+        this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`, 'success');
     }
 
     resetVRView() {
@@ -814,7 +838,7 @@ class VRPlayer {
             if (camera) {
                 camera.setAttribute('rotation', rotation);
                 if (statusMessage) {
-                    this.showTrackingStatus(statusMessage);
+                    this.showNotification(statusMessage, 'info');
                 }
             }
         }
@@ -833,7 +857,7 @@ class VRPlayer {
 
         if (this.settings.mouseTracking) {
             const message = window.i18n ? window.i18n.t('messages.mouse_tracking_enabled') : 'Mouse tracking: enabled';
-            this.showTrackingStatus(message);
+            this.showNotification(message, 'success');
             if (vrScene) {
                 vrScene.style.cursor = 'none';
             }
@@ -876,7 +900,7 @@ class VRPlayer {
             }
         } else {
             const message = window.i18n ? window.i18n.t('messages.mouse_tracking_disabled') : 'Mouse tracking: disabled';
-            this.showTrackingStatus(message);
+            this.showNotification(message, 'warning');
             if (vrScene) {
                 vrScene.style.cursor = 'default';
             }
@@ -913,39 +937,7 @@ class VRPlayer {
         }
     }
 
-    showTrackingStatus(message) {
-        const statusElement = document.createElement('div');
-        statusElement.style.cssText = `
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            font-size: 16px;
-            z-index: 10000;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            white-space: pre-line;
-        `;
-        statusElement.textContent = message;
-        document.body.appendChild(statusElement);
 
-        setTimeout(() => {
-            statusElement.style.opacity = '1';
-        }, 10);
-
-        setTimeout(() => {
-            statusElement.style.opacity = '0';
-            setTimeout(() => {
-                if (statusElement.parentNode) {
-                    statusElement.parentNode.removeChild(statusElement);
-                }
-            }, 300);
-        }, 2000);
-    }
 
     toggleVRMode180360() {
         this.vrMode = this.vrMode === '360' ? '180' : '360';
@@ -953,7 +945,7 @@ class VRPlayer {
         this.updateVRModeGeometry();
 
         const message = window.i18n ? window.i18n.t(`messages.mode_${this.vrMode}`) : `VR mode: ${this.vrMode}°`;
-        this.showTrackingStatus(message);
+        this.showNotification(message, 'success');
 
         if (this.vrMode === '180') {
             this.centerOnLeftEye(false);
@@ -1578,7 +1570,7 @@ class VRPlayer {
             this.settings.mouseTracking = false;
             this.saveSettings();
             const message = window.i18n ? window.i18n.t('messages.mouse_tracking_disabled') : 'Mouse tracking: disabled';
-            this.showTrackingStatus(message);
+            this.showNotification(message, 'warning');
 
             const vrScene = document.getElementById('vr-scene');
             if (vrScene) {
@@ -1673,6 +1665,9 @@ class VRPlayer {
             }
             this.updateProgress();
         }, 100);
+
+        this.currentVRScale = this.settings.vrZoomLevel / 100;
+        this.updateVRScale(this.currentVRScale);
 
         this.showVRModeNotification();
         this.updateVRModeStatus();
@@ -1779,14 +1774,14 @@ class VRPlayer {
             const autoDetectedText = window.i18n ? window.i18n.t('messages.vr_auto_detected') : '🎯 VR video detected, automatically entered VR mode (mono display)';
             notification.innerHTML = `
                 <div>${autoDetectedText}</div>
-                <div style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+                <div style="font-size: 12px; margin-top: 10px; opacity: 0.5;">
                     ${controlsHelp}
                 </div>
             `;
         } else {
             notification.innerHTML = `
                 <div>VR ${window.i18n ? window.i18n.t('messages.mode_' + this.vrMode) : 'mode'} (${monoText})</div>
-                <div style="font-size: 12px; margin-top: 10px; opacity: 0.8;">
+                <div style="font-size: 12px; margin-top: 10px; opacity: 0.5;">
                     ${controlsHelp}
                 </div>
             `;
@@ -1971,6 +1966,9 @@ class VRPlayer {
         const settingsPanel = document.getElementById('settings-panel');
         settingsPanel.style.display = 'block';
         settingsPanel.classList.add('fade-in');
+        
+        // Update VR zoom display when showing settings
+        this.updateVRZoomDisplay();
 
         // Add outside click event
         setTimeout(() => {
@@ -2015,7 +2013,11 @@ class VRPlayer {
     updateSetting(key, value) {
         this.settings[key] = value;
         this.saveSettings();
-        this.applySettings();
+        
+        // Only apply settings that affect video playback or theme
+        if (key === 'loop' || key === 'theme') {
+            this.applySettings();
+        }
     }
 
     applySettings() {
@@ -2091,6 +2093,21 @@ class VRPlayer {
 
         // Update UI
         document.getElementById('loop').checked = this.settings.loop;
+
+        // Set mouse sensitivity value
+        const mouseSensitivity = document.getElementById('mouse-sensitivity');
+        if (mouseSensitivity) {
+            mouseSensitivity.value = this.settings.mouseSensitivity;
+            document.getElementById('sensitivity-value').textContent = this.settings.mouseSensitivity;
+        }
+
+        // Set VR zoom sensitivity value
+        const vrZoomLevel = document.getElementById('vr-zoom-sensitivity');
+        if (vrZoomLevel) {
+            vrZoomLevel.value = this.settings.vrZoomLevel;
+            // Update display using the centralized function
+            this.updateVRZoomDisplay();
+        }
 
         // Set theme select value
         const themeSelect = document.getElementById('theme-select');
@@ -2588,23 +2605,26 @@ class VRPlayer {
 
     setupMouseWheelZoom() {
         const vrScene = document.getElementById('vr-scene');
-        let currentScale = 1.0;
+        this.currentVRScale = 1.0;
         const minScale = 0.5;
-        const maxScale = 3.0;
-        const scaleStep = 0.1;
+        const maxScale = 4.0;
 
         vrScene.addEventListener('wheel', (e) => {
             if (this.isVRMode) {
                 e.preventDefault();
                 e.stopPropagation();
 
+                const scaleStep = 0.1; // Fixed step size for mouse wheel
+
                 if (e.deltaY > 0) {
-                    currentScale = Math.max(minScale, currentScale - scaleStep);
+                    this.currentVRScale = Math.max(minScale, this.currentVRScale - scaleStep);
                 } else {
-                    currentScale = Math.min(maxScale, currentScale + scaleStep);
+                    this.currentVRScale = Math.min(maxScale, this.currentVRScale + scaleStep);
                 }
 
-                this.updateVRScale(currentScale);
+                this.updateVRScale(this.currentVRScale);
+                const message = window.i18n ? window.i18n.t('messages.vr_zoom') : 'VR Zoom';
+                this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`);
             }
         });
 
@@ -2613,13 +2633,17 @@ class VRPlayer {
                 e.preventDefault();
                 e.stopPropagation();
 
+                const scaleStep = 0.1; // Fixed step size for mouse wheel
+
                 if (e.deltaY > 0) {
-                    currentScale = Math.max(minScale, currentScale - scaleStep);
+                    this.currentVRScale = Math.max(minScale, this.currentVRScale - scaleStep);
                 } else {
-                    currentScale = Math.min(maxScale, currentScale + scaleStep);
+                    this.currentVRScale = Math.min(maxScale, this.currentVRScale + scaleStep);
                 }
 
-                this.updateVRScale(currentScale);
+                this.updateVRScale(this.currentVRScale);
+                const message = window.i18n ? window.i18n.t('messages.vr_zoom') : 'VR Zoom';
+                this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`);
             } else {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2639,13 +2663,17 @@ class VRPlayer {
                     e.preventDefault();
                     e.stopPropagation();
 
+                    const scaleStep = 0.1; // Fixed step size for mouse wheel
+
                     if (e.deltaY > 0) {
-                        currentScale = Math.max(minScale, currentScale - scaleStep);
+                        this.currentVRScale = Math.max(minScale, this.currentVRScale - scaleStep);
                     } else {
-                        currentScale = Math.min(maxScale, currentScale + scaleStep);
+                        this.currentVRScale = Math.min(maxScale, this.currentVRScale + scaleStep);
                     }
 
-                    this.updateVRScale(currentScale);
+                    this.updateVRScale(this.currentVRScale);
+                    const message = window.i18n ? window.i18n.t('messages.vr_zoom') : 'VR Zoom';
+                    this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`);
                 }
             });
         }
@@ -2694,9 +2722,167 @@ class VRPlayer {
         }
 
         if (zoomLevel) {
-            const percentage = Math.round(scale * 100);
-            zoomLevel.textContent = `${percentage}%`;
+            zoomLevel.textContent = `${scale.toFixed(1)}x`;
         }
+        
+        // Update settings panel display if it's open
+        if (document.getElementById('settings-panel')?.style.display === 'block') {
+            this.updateVRZoomDisplay();
+        }
+    }
+
+    adjustVRZoom(delta) {
+        if (!this.isVRMode) return;
+
+        // Get current scale if not initialized
+        if (!this.currentVRScale) {
+            this.currentVRScale = 1.0;
+        }
+
+        // Use fixed step size for mouse wheel
+        const zoomStep = 0.1;
+        
+        const minScale = 0.5;
+        const maxScale = 4.0;
+
+        // Apply zoom adjustment
+        this.currentVRScale += delta * zoomStep;
+        this.currentVRScale = Math.max(minScale, Math.min(maxScale, this.currentVRScale));
+
+        // Update the VR scale
+        this.updateVRScale(this.currentVRScale);
+
+        // Show zoom notification
+        const message = window.i18n ? window.i18n.t('messages.vr_zoom') : 'VR Zoom';
+        this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`);
+    }
+
+    adjustVRZoomByKeyboard(direction) {
+        if (!this.isVRMode) return;
+
+        // Initialize current scale value
+        if (!this.currentVRScale) {
+            this.currentVRScale = 1.0;
+        }
+
+        const minScale = 0.5;
+        const maxScale = 4.0;
+        const keyboardStep = 0.1; // Keyboard step set to 0.1x for fine control
+
+        // Simple increase or decrease
+        if (direction > 0) {
+            this.currentVRScale = Math.min(maxScale, this.currentVRScale + keyboardStep);
+        } else {
+            this.currentVRScale = Math.max(minScale, this.currentVRScale - keyboardStep);
+        }
+
+        // Update the VR scale
+        this.updateVRScale(this.currentVRScale);
+
+        // Show zoom notification
+        const message = window.i18n ? window.i18n.t('messages.vr_zoom') : 'VR Zoom';
+        this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`);
+    }
+
+    // Update VR zoom display value in settings based on current scale
+    updateVRZoomDisplay() {
+        const vrZoomValue = document.getElementById('vr-zoom-value');
+        const vrZoomSlider = document.getElementById('vr-zoom-sensitivity');
+        
+        if (vrZoomValue) {
+            if (this.currentVRScale) {
+                // Show actual current zoom level
+                vrZoomValue.textContent = `${this.currentVRScale.toFixed(1)}x`;
+                
+                // Update slider to match current scale if needed
+                if (vrZoomSlider) {
+                    const sliderValue = Math.round(this.currentVRScale * 100);
+                    if (parseInt(vrZoomSlider.value) !== sliderValue) {
+                        vrZoomSlider.value = sliderValue;
+                    }
+                }
+            } else {
+                // Fallback to settings value
+                const multiplier = this.settings.vrZoomLevel / 100;
+                vrZoomValue.textContent = `${multiplier.toFixed(1)}x`;
+            }
+        }
+    }
+
+    // Notification system
+    showNotification(message, type = 'info', duration = 2000) {
+        // Check for existing notification and update it instead of creating new one
+        let statusElement = document.querySelector('.vr-notification');
+        
+        let borderColor;
+        switch(type) {
+            case 'success':
+                borderColor = '#22c55e';
+                break;
+            case 'warning':
+                borderColor = '#f59e0b';
+                break;
+            case 'error':
+                borderColor = '#ef4444';
+                break;
+            default: // info
+                borderColor = 'transparent';
+        }
+
+        if (statusElement) {
+            // Update existing notification
+            statusElement.textContent = message;
+            statusElement.style.borderColor = borderColor;
+            statusElement.style.opacity = '1';
+            
+            // Clear any existing timeout
+            if (statusElement.hideTimeout) {
+                clearTimeout(statusElement.hideTimeout);
+            }
+        } else {
+            // Create new notification
+            statusElement = document.createElement('div');
+            statusElement.classList.add('vr-notification');
+            
+            statusElement.style.cssText = `
+                position: fixed;
+                top: 60px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-size: 16px;
+                z-index: 10000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                white-space: pre-line;
+                border: 1px solid ${borderColor};
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            `;
+            statusElement.textContent = message;
+            document.body.appendChild(statusElement);
+
+            setTimeout(() => {
+                statusElement.style.opacity = '1';
+            }, 10);
+        }
+
+        // Set new hide timeout
+        statusElement.hideTimeout = setTimeout(() => {
+            statusElement.style.opacity = '0';
+            setTimeout(() => {
+                if (statusElement.parentNode) {
+                    statusElement.parentNode.removeChild(statusElement);
+                }
+            }, 300);
+        }, duration);
+    }
+
+    // Legacy compatibility wrapper for tracking status
+    showTrackingStatus(message) {
+        this.showNotification(message, 'info');
     }
 }
 
