@@ -23,7 +23,10 @@
     "electron",
     "360"
   ],
-  "author": "VR Player Team",
+  "author": {
+    "name": "VR Player Team",
+    "email": "robin@lqlsoftware.cn"
+  },
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
@@ -112,7 +115,9 @@
         }
       ],
       "icon": "assets/icon.png",
-      "category": "AudioVideo"
+      "category": "AudioVideo",
+      "maintainer": "VR Player Team <robin@lqlsoftware.cn>",
+      "vendor": "VR Player Team"
     },
     "nsis": {
       "oneClick": false,
