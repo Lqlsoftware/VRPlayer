@@ -57,6 +57,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整的 git 历史
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
@@ -69,6 +71,31 @@ jobs:
           # 复制所有构建产物到 release-files 目录
           find artifacts/ -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \) -exec cp {} release-files/ \;
           ls -la release-files/
+
+      - name: Extract changelog from tag
+        id: changelog
+        run: |
+          # 获取当前 tag 的完整信息
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          
+          # 如果 tag 信息为空，尝试使用 git show 获取
+          if [ -z "$TAG_MESSAGE" ]; then
+            TAG_MESSAGE=$(git show ${{ github.ref_name }} --format=%B --no-patch)
+          fi
+          
+          # 如果仍然为空，生成默认信息
+          if [ -z "$TAG_MESSAGE" ]; then
+            TAG_MESSAGE="Release ${{ github.ref_name }}"
+          fi
+          
+          # 输出到 GitHub Actions 变量（处理多行文本）
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAG_MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          # 输出到控制台（用于调试）
+          echo "Changelog content:"
+          echo "$TAG_MESSAGE"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -90,20 +117,15 @@ jobs:
             **Linux:**
             - 支持 64-bit Linux 发行版
             - 提供 AppImage、DEB 和 RPM 格式
-            
-            ### 🚀 功能特性
-            - 🎥 支持 360° VR 视频播放
-            - 🎮 完整的播放控制
-            - 🌐 多语言支持 (中文/英文)
-            - 🖥️ 跨平台支持
-            
-            ### 📋 使用方法
-            1. 下载对应平台的安装包
-            2. 安装并运行 VR Player
-            3. 打开 VR 视频文件开始享受沉浸式体验
-            
+
             ### 🐛 问题反馈
             如果您在使用过程中遇到任何问题，请在 [Issues](../../issues) 页面反馈。
+            
+            ---
+            
+            ### 📝 更新日志
+            
+            ${{ steps.changelog.outputs.changelog }}
           files: release-files/*
           draft: false
           prerelease: false 
