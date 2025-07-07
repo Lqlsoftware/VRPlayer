@@ -68,34 +68,55 @@ jobs:
       - name: Prepare release files
         run: |
           mkdir -p release-files
-          # 复制所有构建产物到 release-files 目录
-          find artifacts/ -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \) -exec cp {} release-files/ \;
+          # 复制所有构建产物到 release-files 目录，排除 elevate.exe
+          find artifacts/ -type f \( -name "*.exe" -o -name "*.dmg" -o -name "*.zip" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" \) ! -name "elevate.exe" -exec cp {} release-files/ \;
           ls -la release-files/
 
-      - name: Extract changelog from tag
+      - name: Extract changelog from commits
         id: changelog
         run: |
-          # 获取当前 tag 的完整信息
-          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          # 获取所有 tags 并按版本排序，找到比当前tag更老的tag
+          ALL_TAGS=$(git tag --sort=-version:refname)
+          CURRENT_TAG_FOUND=false
+          PREVIOUS_TAG=""
           
-          # 如果 tag 信息为空，尝试使用 git show 获取
-          if [ -z "$TAG_MESSAGE" ]; then
-            TAG_MESSAGE=$(git show ${{ github.ref_name }} --format=%B --no-patch)
-          fi
+          for tag in $ALL_TAGS; do
+            if [ "$CURRENT_TAG_FOUND" = true ]; then
+              PREVIOUS_TAG=$tag
+              break
+            fi
+            if [ "$tag" = "${{ github.ref_name }}" ]; then
+              CURRENT_TAG_FOUND=true
+            fi
+          done
           
-          # 如果仍然为空，生成默认信息
-          if [ -z "$TAG_MESSAGE" ]; then
-            TAG_MESSAGE="Release ${{ github.ref_name }}"
+          echo "Current tag: ${{ github.ref_name }}"
+          echo "Previous tag: $PREVIOUS_TAG"
+          
+          # 如果找到了前一个tag，获取两个tag之间的commits
+          if [ ! -z "$PREVIOUS_TAG" ]; then
+            echo "Getting commits between $PREVIOUS_TAG and ${{ github.ref_name }}"
+            # 获取两个tag之间的commit信息，格式化为changelog
+            CHANGELOG=$(git log --pretty=format:"- %s" $PREVIOUS_TAG..${{ github.ref_name }})
+            
+            # 如果没有commits，使用当前tag的commit信息
+            if [ -z "$CHANGELOG" ]; then
+              CHANGELOG=$(git show ${{ github.ref_name }} --format="- %s" --no-patch)
+            fi
+          else
+            echo "No previous tag found, using commits from beginning"
+            # 如果没有前一个tag，获取当前tag的commit信息
+            CHANGELOG=$(git show ${{ github.ref_name }} --format="- %s" --no-patch)
           fi
           
           # 输出到 GitHub Actions 变量（处理多行文本）
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$TAG_MESSAGE" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           
           # 输出到控制台（用于调试）
           echo "Changelog content:"
-          echo "$TAG_MESSAGE"
+          echo "$CHANGELOG"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
