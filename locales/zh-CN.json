@@ -57,6 +57,7 @@
     "view_reset": "视角已重置",
     "vr_zoom": "VR 缩放",
     "vr_zoom_reset": "VR 缩放 (已重置)",
+    "vr_zoom_view_reset": "VR 缩放/视角 (已重置)",
     "center_left": "居中左眼",
     "center_right": "居中右眼",
     "center_middle": "居中中间",
@@ -84,7 +85,7 @@
     "f": "F - 全屏",
     "v": "V - VR模式",
     "m": "M - 静音",
-    "r": "R - 重置视角",
+    "r": "R - 重置缩放/视角",
     "t": "T - 鼠标追踪",
     "escape": "ESC - 退出全屏/VR"
   },

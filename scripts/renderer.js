@@ -287,7 +287,7 @@ class VRPlayer {
         ipcRenderer.on('load-video-folder', (event, files) => this.loadVideoFolder(files));
         ipcRenderer.on('enter-vr-mode', () => this.enterVRMode());
         ipcRenderer.on('exit-vr-mode', () => this.exitVRMode());
-        
+
         // Listen for system theme changes
         ipcRenderer.on('system-theme-updated', (event, shouldUseDarkColors) => {
             if (this.settings.theme === 'system') {
@@ -782,13 +782,7 @@ class VRPlayer {
             case 'KeyR':
                 if (this.isVRMode) {
                     e.preventDefault();
-                    this.resetVRZoom();
-                }
-                break;
-            case 'KeyV':
-                if (this.isVRMode) {
-                    e.preventDefault();
-                    this.resetVRView();
+                    this.resetVRZoomAndView();
                 }
                 break;
             case 'KeyK':
@@ -824,6 +818,19 @@ class VRPlayer {
 
     resetVRView() {
         this.centerOnLeftEye();
+    }
+
+    resetVRZoomAndView() {
+        // Reset VR zoom
+        this.currentVRScale = this.settings.vrZoomLevel / 100;
+        this.updateVRScale(this.currentVRScale);
+
+        // Reset VR view
+        this.centerOnLeftEye(false); // Don't show individual view reset message
+
+        // Show combined notification
+        const message = window.i18n ? window.i18n.t('messages.vr_zoom_view_reset') : 'VR Zoom & View Reset';
+        this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`, 'success');
     }
 
     centerOnLeftEye(showStatus = true) {
@@ -1056,7 +1063,7 @@ class VRPlayer {
 
                 // Update VR mode selection in settings panel
                 this.updateVRModeSelection();
-                
+
                 // Save the detected VR mode
                 this.saveSettings();
 
@@ -1988,7 +1995,7 @@ class VRPlayer {
         const settingsPanel = document.getElementById('settings-panel');
         settingsPanel.style.display = 'block';
         settingsPanel.classList.add('fade-in');
-        
+
         // Update VR zoom display when showing settings
         this.updateVRZoomDisplay();
 
@@ -2038,7 +2045,7 @@ class VRPlayer {
     updateSetting(key, value) {
         this.settings[key] = value;
         this.saveSettings();
-        
+
         // Only apply settings that affect video playback or theme
         if (key === 'loop' || key === 'theme') {
             this.applySettings();
@@ -2059,11 +2066,11 @@ class VRPlayer {
 
     applyTheme(theme) {
         const body = document.body;
-        
+
         // Remove existing theme classes
         body.classList.remove('dark-theme', 'light-theme');
-        
-        switch(theme) {
+
+        switch (theme) {
             case 'dark':
                 body.classList.add('dark-theme');
                 break;
@@ -2082,7 +2089,7 @@ class VRPlayer {
             // Check if we're on Mac and can detect system theme
             const shouldUseDarkColors = await ipcRenderer.invoke('get-system-theme');
             const body = document.body;
-            
+
             if (shouldUseDarkColors) {
                 body.classList.add('dark-theme');
             } else {
@@ -2758,7 +2765,7 @@ class VRPlayer {
         if (zoomLevel) {
             zoomLevel.textContent = `${scale.toFixed(1)}x`;
         }
-        
+
         // Update settings panel display if it's open
         if (document.getElementById('settings-panel')?.style.display === 'block') {
             this.updateVRZoomDisplay();
@@ -2775,7 +2782,7 @@ class VRPlayer {
 
         // Use fixed step size for mouse wheel
         const zoomStep = 0.1;
-        
+
         const minScale = 0.5;
         const maxScale = 4.0;
 
@@ -2822,12 +2829,12 @@ class VRPlayer {
     updateVRZoomDisplay() {
         const vrZoomValue = document.getElementById('vr-zoom-value');
         const vrZoomSlider = document.getElementById('vr-zoom-sensitivity');
-        
+
         if (vrZoomValue) {
             if (this.currentVRScale) {
                 // Show actual current zoom level
                 vrZoomValue.textContent = `${this.currentVRScale.toFixed(1)}x`;
-                
+
                 // Update slider to match current scale if needed
                 if (vrZoomSlider) {
                     const sliderValue = Math.round(this.currentVRScale * 100);
@@ -2855,9 +2862,9 @@ class VRPlayer {
     showNotification(message, type = 'info', duration = 2000) {
         // Check for existing notification and update it instead of creating new one
         let statusElement = document.querySelector('.vr-notification');
-        
+
         let borderColor;
-        switch(type) {
+        switch (type) {
             case 'success':
                 borderColor = '#22c55e';
                 break;
@@ -2876,7 +2883,7 @@ class VRPlayer {
             statusElement.textContent = message;
             statusElement.style.borderColor = borderColor;
             statusElement.style.opacity = '1';
-            
+
             // Clear any existing timeout
             if (statusElement.hideTimeout) {
                 clearTimeout(statusElement.hideTimeout);
@@ -2885,7 +2892,7 @@ class VRPlayer {
             // Create new notification
             statusElement = document.createElement('div');
             statusElement.classList.add('vr-notification');
-            
+
             statusElement.style.cssText = `
                 position: fixed;
                 top: 60px;

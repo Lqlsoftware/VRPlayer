@@ -57,6 +57,7 @@
     "view_reset": "View reset",
     "vr_zoom": "VR Zoom",
     "vr_zoom_reset": "VR Zoom (Reset)",
+    "vr_zoom_view_reset": "VR Zoom & View (Reset)",
     "center_left": "Center left eye",
     "center_right": "Center right eye",
     "center_middle": "Center middle",
@@ -84,7 +85,7 @@
     "f": "F - Fullscreen",
     "v": "V - VR Mode",
     "m": "M - Mute",
-    "r": "R - Reset View",
+    "r": "R - Reset Zoom & View",
     "t": "T - Mouse Tracking",
     "escape": "ESC - Exit Fullscreen/VR"
   },
