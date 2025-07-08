@@ -659,11 +659,11 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     top: 80px;
     width: 300px;
     max-height: 400px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--playlist-bg);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-color);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--border-color);
     overflow: hidden;
     animation: settingsFadeIn 0.3s ease;
 }
@@ -673,7 +673,7 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .file-list-header h3 {
