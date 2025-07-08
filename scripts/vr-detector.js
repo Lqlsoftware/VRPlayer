@@ -11,10 +11,19 @@ class VRDetector {
     static detectFromFilename(filePath) {
         if (!filePath) return null;
 
-        const fileName = filePath.toLowerCase();
+        // Extract only the filename from the path
+        const fileName = filePath.split(/[/\\]/).pop().toLowerCase();
         let isVR = false;
         let fov = '180'; // default 180 degree
         let format = 'mono'; // default mono
+
+        // Helper function to check if a keyword exists as a complete word in the filename
+        const hasCompleteWord = (text, keyword) => {
+            // Create regex pattern for complete word match
+            // \b ensures word boundaries, handle special characters like hyphens and dots
+            const pattern = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+            return pattern.test(text);
+        };
 
         // VR related keywords
         const vrKeywords = [
@@ -50,7 +59,7 @@ class VRDetector {
         const tbKeywords = ['tb', 'top-bottom', 'topbottom', 'ou', 'over-under'];
 
         // Check if it is a VR video
-        const matchedVRKeyword = vrKeywords.find(keyword => fileName.includes(keyword));
+        const matchedVRKeyword = vrKeywords.find(keyword => hasCompleteWord(fileName, keyword));
         if (!matchedVRKeyword) {
             return null;
         }
@@ -59,14 +68,14 @@ class VRDetector {
 
         // Detect field of view angle
         for (const keyword of keywords180) {
-            if (fileName.includes(keyword)) {
+            if (hasCompleteWord(fileName, keyword)) {
                 fov = '180';
                 break;
             }
         }
 
         for (const keyword of keywords360) {
-            if (fileName.includes(keyword)) {
+            if (hasCompleteWord(fileName, keyword)) {
                 fov = '360';
                 break;
             }
@@ -74,14 +83,14 @@ class VRDetector {
 
         // Detect stereo format
         for (const keyword of sbsKeywords) {
-            if (fileName.includes(keyword)) {
+            if (hasCompleteWord(fileName, keyword)) {
                 format = 'sbs';
                 break;
             }
         }
 
         for (const keyword of tbKeywords) {
-            if (fileName.includes(keyword)) {
+            if (hasCompleteWord(fileName, keyword)) {
                 format = 'tb';
                 break;
             }
@@ -102,28 +111,22 @@ class VRDetector {
 
         const aspectRatio = width / height;
         let isVR = false;
-        let fov = '180';
-        let format = 'mono';
 
         // Typical aspect ratio configurations for VR videos
         const vrAspectRatios = [
             // 360 degree panoramic video
-            { ratio: 2.0, tolerance: 0.1, fov: '360', format: 'mono', description: '360° panoramic video (2:1)' },
+            { ratio: 2.0, tolerance: 0.12, fov: '360', format: 'mono', description: '360° panoramic video (2:1)' },
             { ratio: 4.0, tolerance: 0.2, fov: '360', format: 'sbs', description: '360° SBS stereo video (4:1)' },
             { ratio: 1.0, tolerance: 0.1, fov: '360', format: 'tb', description: '360° TB stereo video (1:1)' },
 
             // 180 degree hemisphere video
             { ratio: 1.0, tolerance: 0.1, fov: '180', format: 'mono', description: '180° video (1:1)' },
-            { ratio: 16 / 9, tolerance: 0.05, fov: '180', format: 'mono', description: '180° video (16:9)' },
-            { ratio: 4 / 3, tolerance: 0.05, fov: '180', format: 'mono', description: '180° video (4:3)' },
             { ratio: 32 / 9, tolerance: 0.2, fov: '180', format: 'sbs', description: '180° SBS stereo video (32:9)' },
             { ratio: 8 / 3, tolerance: 0.2, fov: '180', format: 'sbs', description: '180° SBS stereo video (8:3)' },
             { ratio: 16 / 18, tolerance: 0.1, fov: '180', format: 'tb', description: '180° TB stereo video (16:18)' },
             { ratio: 4 / 6, tolerance: 0.1, fov: '180', format: 'tb', description: '180° TB stereo video (4:6)' },
 
             // Other VR formats
-            { ratio: 1.33, tolerance: 0.05, fov: '180', format: 'mono', description: '4:3 VR video' },
-            { ratio: 1.78, tolerance: 0.05, fov: '180', format: 'mono', description: '16:9 VR video' },
             { ratio: 2.35, tolerance: 0.1, fov: '180', format: 'mono', description: 'Ultra-wide VR video' }
         ];
 
@@ -134,10 +137,8 @@ class VRDetector {
 
         if (matchedRatio) {
             isVR = true;
-            fov = matchedRatio.fov;
-            format = matchedRatio.format;
             console.log(`VR detected from resolution: ${width}x${height} (${aspectRatio.toFixed(2)}:1) - ${matchedRatio.description}`);
-            return { isVR, fov, format };
+            return { isVR };
         }
 
         return null;
@@ -255,36 +256,43 @@ class VRDetector {
      * @returns {Object} - detection result
      */
     static analyzeFrameForVRFormat(imageData, width, height) {
-        let isVR = false;
+        let isVR = true;
         let fov = '180';
         let format = 'mono';
         let description = '';
 
         // Detect SBS (left/right split) format
         const sbsScore = this.detectSBSFormat(imageData, width, height);
+        console.log('SBS score:', sbsScore);
 
         // Detect TB (top/bottom split) format
         const tbScore = this.detectTBFormat(imageData, width, height);
+        console.log('TB score:', tbScore);
+
+        if (sbsScore > 0.3) {
+            format = 'sbs';
+        } else if (tbScore > 0.3) {
+            format = 'tb';
+        } else {
+            format = 'mono';
+        }
 
         // Detect 360 degree panoramic features
-        const is360Score = this.detect360Features(imageData, width, height);
+        const is360Score = this.detect360Features(imageData, width, height, format);
+        console.log('360 score:', is360Score);
 
-        // Determine format based on detection results
-        if (sbsScore > 0.7) {
-            isVR = true;
-            format = 'sbs';
-            fov = is360Score > 0.6 ? '360' : '180';
-            description = `${fov}° SBS stereo video detected from frame analysis`;
-        } else if (tbScore > 0.7) {
-            isVR = true;
-            format = 'tb';
-            fov = is360Score > 0.6 ? '360' : '180';
-            description = `${fov}° TB stereo video detected from frame analysis`;
-        } else if (is360Score > 0.8) {
-            isVR = true;
-            format = 'mono';
+        if (is360Score > 0.5) {
             fov = '360';
-            description = '360° panoramic video detected from frame analysis';
+        } else {
+            fov = '180';
+        }
+
+        if (format === 'sbs') {
+            description = `${fov}° SBS stereo video detected from frame analysis`;
+        } else if (format === 'tb') {
+            description = `${fov}° TB stereo video detected from frame analysis`;
+        } else {
+            description = `${fov}° panoramic video detected from frame analysis`;
         }
 
         return { isVR, fov, format, description };
@@ -320,7 +328,7 @@ class VRDetector {
                 Math.abs(imageData[index + 2] - imageData[rightIndex + 2]);
 
             // If there is a significant color difference on the center line, increase the score
-            if (leftDiff > 30 || rightDiff > 30) {
+            if (leftDiff > 20 || rightDiff > 20) {
                 verticalLineScore++;
             }
 
@@ -360,7 +368,7 @@ class VRDetector {
                 Math.abs(imageData[index + 2] - imageData[bottomIndex + 2]);
 
             // If there is a significant color difference on the center line, increase the score
-            if (topDiff > 30 || bottomDiff > 30) {
+            if (topDiff > 20 || bottomDiff > 20) {
                 horizontalLineScore++;
             }
 
@@ -375,11 +383,19 @@ class VRDetector {
      * @param {Uint8ClampedArray} imageData - image data
      * @param {number} width - image width
      * @param {number} height - image height
+     * @param {string} format - image format
      * @returns {number} - detection score (0-1)
      */
-    static detect360Features(imageData, width, height) {
+    static detect360Features(imageData, width, height, format) {
         let score = 0;
         let sampleCount = 0;
+
+        // if format is sbs or tb, need to check the image in single eye view
+        if (format === 'sbs') {
+            width /= 2;
+        } else if (format === 'tb') {
+            height /= 2;
+        }
 
         // Check the continuity of the image edges (360 degree panoramic features)
         // Sample on the left and right edges of the image and check color similarity
@@ -393,7 +409,7 @@ class VRDetector {
                 Math.abs(imageData[leftIndex + 2] - imageData[rightIndex + 2]);
 
             // If the edges have similar colors, it may be a 360 degree panoramic image
-            if (diff < 50) {
+            if (diff < 20) {
                 score++;
             }
 
@@ -427,37 +443,33 @@ class VRDetector {
             results.detectionMethods.push('filename');
             results.confidence += 0.4;
         }
+        console.log('**** File name detection result:', filenameResult);
 
-        // Method 2: resolution detection
-        if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
-            const resolutionResult = this.detectFromResolution(videoElement.videoWidth, videoElement.videoHeight);
-            if (resolutionResult && resolutionResult.isVR) {
-                results.isVR = true;
-                // If the filename detection has no result, use the resolution detection result
-                if (results.detectionMethods.length === 0) {
-                    results.fov = resolutionResult.fov;
-                    results.format = resolutionResult.format;
-                }
-                results.detectionMethods.push('resolution');
-                results.confidence += 0.3;
-            }
-        }
-
-        // Method 3: frame content detection
+        // Method 2: frame content detection
         if (videoElement) {
             try {
                 const frameResult = await this.detectFromFrameContent(videoElement);
-                if (frameResult && frameResult.isVR) {
-                    results.isVR = true;
+                if (frameResult) {
                     results.fov = frameResult.fov;
                     results.format = frameResult.format;
                     results.detectionMethods.push('frame');
                     results.confidence += 0.3;
                 }
+                console.log('**** Frame content detection result:', frameResult);
             } catch (error) {
                 console.warn('Frame content detection failed:', error);
-                // Frame content detection failure does not affect other detection methods
             }
+        }
+
+        // Method 3: resolution detection
+        if (videoElement && videoElement.videoWidth && videoElement.videoHeight) {
+            const resolutionResult = this.detectFromResolution(videoElement.videoWidth, videoElement.videoHeight);
+            if (resolutionResult && resolutionResult.isVR) {
+                results.isVR = true;
+                results.detectionMethods.push('resolution');
+                results.confidence += 0.3;
+            }
+            console.log('**** Resolution detection result:', resolutionResult);
         }
 
         // Output detection results
