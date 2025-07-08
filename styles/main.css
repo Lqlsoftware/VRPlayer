@@ -660,7 +660,7 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     width: 300px;
     max-height: 400px;
     background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -754,7 +754,7 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     top: 80px;
     width: 300px;
     background: var(--settings-bg);
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 8px 32px var(--shadow-color);
     backdrop-filter: blur(10px);
     border: 1px solid var(--border-color);
@@ -805,7 +805,7 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 }
 
 .settings-content {
-    padding: 20px;
+    padding: 20px 20px 0px 20px;
 }
 
 .setting-group {
@@ -1721,10 +1721,11 @@ body.mac-platform.vr-mode .toolbar-right-mac .app-title-mac {
 /* VR Settings Styles */
 .vr-setting-row {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
     gap: 8px;
+    height: 32px;
 }
 
 .vr-setting-row:last-child {
@@ -1737,6 +1738,8 @@ body.mac-platform.vr-mode .toolbar-right-mac .app-title-mac {
     color: var(--text-primary);
     min-width: 100px;
     flex-shrink: 0;
+    margin: 0;
+    line-height: 24px;
 }
 
 .vr-setting-control {
@@ -1744,6 +1747,7 @@ body.mac-platform.vr-mode .toolbar-right-mac .app-title-mac {
     display: flex;
     align-items: center;
     gap: 6px;
+    justify-content: flex-end;
 }
 
 .vr-setting-control select {
@@ -1816,4 +1820,47 @@ body.mac-platform.vr-mode .toolbar-right-mac .app-title-mac {
     height: 18px;
     cursor: pointer;
     accent-color: var(--progress-thumb);
+}
+
+.vr-setting-control input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 44px;
+    height: 24px;
+    background: var(--border-color);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    outline: none;
+}
+
+.vr-setting-control input[type="checkbox"]:checked {
+    background: var(--progress-thumb);
+}
+
+.vr-setting-control input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: white;
+    top: 3px;
+    left: 3px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.vr-setting-control input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+
+.vr-setting-control input[type="checkbox"]:hover {
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.vr-setting-control input[type="checkbox"]:focus {
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
 }
