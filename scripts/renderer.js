@@ -1132,6 +1132,9 @@ class VRPlayer {
             this.showVideoPlayer();
             this.addToPlaylist(filePath);
 
+            // Hide playlist when loading a new video
+            this.hidePlaylist();
+
             this.play();
 
         } catch (error) {
@@ -1145,7 +1148,8 @@ class VRPlayer {
 
         if (files.length > 0) {
             this.loadVideo(files[0]);
-            this.updatePlaylist();
+            // Hide playlist when loading a folder
+            this.hidePlaylist();
         }
     }
 
@@ -2326,8 +2330,11 @@ class VRPlayer {
         if (!this.videoList.includes(filePath)) {
             this.videoList.push(filePath);
             try {
-                this.updatePlaylist();
-                this.updateVRPlaylist();
+                // Only update playlist display if it's currently visible
+                if (this.settings.showPlaylist) {
+                    this.updatePlaylist();
+                    this.updateVRPlaylist();
+                }
             } catch (error) {
                 console.error('Error updating playlist:', error);
             }
