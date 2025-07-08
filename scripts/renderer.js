@@ -16,13 +16,13 @@ class VRPlayer {
             loop: false,
             showPlaylist: false,
             mouseTracking: true,
-            mouseSensitivity: 20,
+            vrViewSensitivity: 20,
             vrZoomLevel: 100,
             language: 'zh-CN',
             theme: 'system'
         };
-        this.vrMode = '180'; // VR mode: '360' or '180'
-        this.monoMode = true; // Always show mono video to avoid compression
+        this.vrFov = '180'; // VR field of view: '360' or '180'
+        this.vrFormat = 'mono'; // VR format: 'mono', 'sbs', 'tb'
 
         this.init();
     }
@@ -210,7 +210,7 @@ class VRPlayer {
         });
         document.getElementById('loop').addEventListener('change', (e) => this.updateSetting('loop', e.target.checked));
         document.getElementById('mouse-sensitivity').addEventListener('input', (e) => {
-            this.updateSetting('mouseSensitivity', parseInt(e.target.value));
+            this.updateSetting('vrViewSensitivity', parseInt(e.target.value));
             document.getElementById('sensitivity-value').textContent = e.target.value;
         });
         document.getElementById('vr-zoom-sensitivity').addEventListener('input', (e) => {
@@ -230,10 +230,20 @@ class VRPlayer {
             this.switchLanguage(e.target.value);
         });
 
-        // VR Mode selection event listener
-        document.getElementById('vr-mode-select').addEventListener('change', (e) => {
-            this.updateSetting('vrMode', e.target.value);
-            this.vrMode = e.target.value;
+        // VR FOV selection event listener
+        document.getElementById('vr-fov-select').addEventListener('change', (e) => {
+            this.updateSetting('vrFov', e.target.value);
+            this.vrFov = e.target.value;
+            // Update VR mode geometry if currently in VR mode
+            if (this.isVRMode) {
+                this.updateVRModeGeometry();
+            }
+        });
+
+        // VR Format selection event listener
+        document.getElementById('vr-format-select').addEventListener('change', (e) => {
+            this.updateSetting('vrFormat', e.target.value);
+            this.vrFormat = e.target.value;
             // Update VR mode geometry if currently in VR mode
             if (this.isVRMode) {
                 this.updateVRModeGeometry();
@@ -728,7 +738,10 @@ class VRPlayer {
                 this.togglePlayPause();
                 break;
             case 'KeyF':
-                if (e.ctrlKey || e.metaKey) {
+                if (this.isVRMode) {
+                    e.preventDefault();
+                    this.toggleVRFov();
+                } else if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
                     this.toggleFullscreen();
                 }
@@ -791,10 +804,17 @@ class VRPlayer {
                     this.toggleMouseTracking();
                 }
                 break;
-            case 'KeyI':
+            case 'KeyF':
                 if (this.isVRMode) {
                     e.preventDefault();
-                    this.toggleVRMode180360();
+                    this.toggleVRFov();
+                }
+                break;
+
+            case 'KeyV':
+                if (this.isVRMode) {
+                    e.preventDefault();
+                    this.toggleVRFormat();
                 }
                 break;
 
@@ -956,17 +976,34 @@ class VRPlayer {
 
 
 
-    toggleVRMode180360() {
-        this.vrMode = this.vrMode === '360' ? '180' : '360';
+    toggleVRFov() {
+        this.vrFov = this.vrFov === '360' ? '180' : '360';
 
         this.updateVRModeGeometry();
 
-        const message = window.i18n ? window.i18n.t(`messages.mode_${this.vrMode}`) : `VR mode: ${this.vrMode}°`;
+        const message = window.i18n ? window.i18n.t(`messages.fov_${this.vrFov}`) : `VR FOV: ${this.vrFov}°`;
         this.showNotification(message, 'success');
 
-        if (this.vrMode === '180') {
+        if (this.vrFov === '180') {
             this.centerOnLeftEye(false);
         }
+
+        // Update VR mode selection in settings panel if it's open
+        this.updateVRModeSelection();
+
+        this.saveSettings();
+    }
+
+    toggleVRFormat() {
+        const formats = ['mono', 'sbs', 'tb'];
+        const currentIndex = formats.indexOf(this.vrFormat);
+        const nextIndex = (currentIndex + 1) % formats.length;
+        this.vrFormat = formats[nextIndex];
+
+        this.updateVRModeGeometry();
+
+        const message = window.i18n ? window.i18n.t(`settings.vr_format_${this.vrFormat}`) : `VR Format: ${this.vrFormat.toUpperCase()}`;
+        this.showNotification(message, 'success');
 
         // Update VR mode selection in settings panel if it's open
         this.updateVRModeSelection();
@@ -986,7 +1023,7 @@ class VRPlayer {
         const currentGeometry = videosphere.getAttribute('geometry') || {};
         const radius = currentGeometry.radius || 500;
 
-        if (this.vrMode === '180') {
+        if (this.vrFov === '180') {
             videosphere.setAttribute('geometry', {
                 radius: radius,
                 phiLength: 180,
@@ -1005,7 +1042,7 @@ class VRPlayer {
         }
 
         setTimeout(() => {
-            this.applyMonoMode(videosphere);
+            this.applyVRFormat(videosphere);
         }, 100);
 
         videosphere.setAttribute('material', {
@@ -1014,7 +1051,7 @@ class VRPlayer {
 
         this.updateVRModeStatus();
 
-        if (this.vrMode === '180') {
+        if (this.vrFov === '180') {
             this.centerOnLeftEye(false);
         }
     }
@@ -1024,20 +1061,20 @@ class VRPlayer {
         const vrModeIndicator = document.querySelector('.vr-mode-indicator');
 
         if (vrModeText) {
-            const monoText = window.i18n ? window.i18n.t('messages.mono_mode') : 'Mono';
-            vrModeText.textContent = `${this.vrMode}° ${monoText}`;
+            const formatText = window.i18n ? window.i18n.t(`settings.vr_format_${this.vrFormat}`) : this.vrFormat.toUpperCase();
+            vrModeText.textContent = `${this.vrFov}° ${formatText}`;
         }
 
         if (vrModeIndicator) {
             vrModeIndicator.classList.remove('mode-180', 'mode-360', 'mode-mono', 'mode-sbs', 'mode-tb');
 
-            if (this.vrMode === '180') {
+            if (this.vrFov === '180') {
                 vrModeIndicator.classList.add('mode-180');
             } else {
                 vrModeIndicator.classList.add('mode-360');
             }
 
-            vrModeIndicator.classList.add('mode-mono');
+            vrModeIndicator.classList.add(`mode-${this.vrFormat}`);
         }
     }
 
@@ -1059,7 +1096,7 @@ class VRPlayer {
 
             if (isVRByName) {
                 const detectedMode = this.detectVRMode(filePath);
-                this.vrMode = detectedMode;
+                this.vrFov = detectedMode;
 
                 // Update VR mode selection in settings panel
                 this.updateVRModeSelection();
@@ -1701,6 +1738,12 @@ class VRPlayer {
         // Update VR mode selection in settings panel
         this.updateVRModeSelection();
 
+        // Update VR settings visibility if settings panel is open
+        const vrSettingsGroup = document.getElementById('vr-settings-group');
+        if (vrSettingsGroup) {
+            vrSettingsGroup.style.display = 'block';
+        }
+
         setTimeout(() => {
             this.updateProgress();
             if (this.settings.showPlaylist && this.videoList.length > 0) {
@@ -1796,8 +1839,8 @@ class VRPlayer {
         // Check if auto-entered VR mode due to VR video detection
         const isAutoEntered = this.isVRVideo(this.currentVideo) || this.checkVideoResolution();
 
-        const monoText = window.i18n ? window.i18n.t('messages.mono_mode') : 'Mono';
-        const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | K Tracking | I Toggle 180/360° | Mouse Wheel Zoom';
+        const formatText = window.i18n ? window.i18n.t(`settings.vr_format_${this.vrFormat}`) : this.vrFormat.toUpperCase();
+        const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | K Tracking | F Toggle 180/360° | V Toggle Format | Mouse Wheel Zoom';
 
         if (isAutoEntered) {
             const autoDetectedText = window.i18n ? window.i18n.t('messages.vr_auto_detected') : '🎯 VR video detected, automatically entered VR mode (mono display)';
@@ -1809,7 +1852,7 @@ class VRPlayer {
             `;
         } else {
             notification.innerHTML = `
-                <div>VR ${window.i18n ? window.i18n.t('messages.mode_' + this.vrMode) : 'mode'} (${monoText})</div>
+                <div>VR ${window.i18n ? window.i18n.t(`messages.fov_${this.vrFov}`) : `${this.vrFov}°`} (${formatText})</div>
                 <div style="font-size: 12px; margin-top: 10px; opacity: 0.5;">
                     ${controlsHelp}
                 </div>
@@ -1852,6 +1895,12 @@ class VRPlayer {
         }
 
         this.updateVRButtonStates(false);
+
+        // Hide VR settings if settings panel is open
+        const vrSettingsGroup = document.getElementById('vr-settings-group');
+        if (vrSettingsGroup) {
+            vrSettingsGroup.style.display = 'none';
+        }
 
         if (this.settings.showPlaylist && this.videoList.length > 0) {
             this.updatePlaylist();
@@ -1935,28 +1984,40 @@ class VRPlayer {
             this.updateVRModeGeometry();
 
             videosphere.addEventListener('materialtextureloaded', () => {
-                this.applyMonoMode(videosphere);
+                this.applyVRFormat(videosphere);
             });
 
             setTimeout(() => {
-                this.applyMonoMode(videosphere);
+                this.applyVRFormat(videosphere);
             }, 200);
         }
     }
 
-    applyMonoMode(videosphere) {
+    applyVRFormat(videosphere) {
         try {
             const mesh = videosphere.getObject3D('mesh');
             if (mesh && mesh.material && mesh.material.map) {
-                mesh.material.map.repeat.set(0.5, 1);
-                mesh.material.map.offset.set(0, 0);
+                switch (this.vrFormat) {
+                    case 'mono':
+                        mesh.material.map.repeat.set(1, 1);
+                        mesh.material.map.offset.set(0, 0);
+                        break;
+                    case 'sbs':
+                        mesh.material.map.repeat.set(0.5, 1);
+                        mesh.material.map.offset.set(0, 0);
+                        break;
+                    case 'tb':
+                        mesh.material.map.repeat.set(1, 0.5);
+                        mesh.material.map.offset.set(0, 0);
+                        break;
+                }
                 mesh.material.map.needsUpdate = true;
-                console.log('Mono mode texture mapping applied: repeat(0.5, 1) offset(0, 0)');
+                console.log(`${this.vrFormat} format texture mapping applied`);
             } else {
-                console.log('Texture not ready yet, mono mode will be applied later');
+                console.log('Texture not ready yet, VR format will be applied later');
             }
         } catch (error) {
-            console.error('Error applying mono mode:', error);
+            console.error('Error applying VR format:', error);
         }
     }
 
@@ -1993,8 +2054,15 @@ class VRPlayer {
 
     showSettings() {
         const settingsPanel = document.getElementById('settings-panel');
+        const vrSettingsGroup = document.getElementById('vr-settings-group');
+
         settingsPanel.style.display = 'block';
         settingsPanel.classList.add('fade-in');
+
+        // Show VR settings only in VR mode
+        if (vrSettingsGroup) {
+            vrSettingsGroup.style.display = this.isVRMode ? 'block' : 'none';
+        }
 
         // Update VR zoom display when showing settings
         this.updateVRZoomDisplay();
@@ -2006,6 +2074,9 @@ class VRPlayer {
         setTimeout(() => {
             document.addEventListener('click', this.handleOutsideClick);
         }, 100);
+
+        // Update slider value displays
+        this.updateSliderValueDisplays();
     }
 
     hideSettings() {
@@ -2108,17 +2179,24 @@ class VRPlayer {
             const savedSettings = JSON.parse(saved);
             this.settings = { ...this.settings, ...savedSettings };
 
-            // Load VR mode settings
-            if (savedSettings.vrMode) {
-                this.vrMode = savedSettings.vrMode;
+            // Load VR settings
+            if (savedSettings.vrFov) {
+                this.vrFov = savedSettings.vrFov;
+            }
+            if (savedSettings.vrFormat) {
+                this.vrFormat = savedSettings.vrFormat;
+            }
+            // Legacy support for old vrMode setting
+            if (savedSettings.vrMode && !savedSettings.vrFov) {
+                this.vrFov = savedSettings.vrMode;
             }
 
             // Handle legacy mouseSensitivity values (convert from 0-1 range to 0-100 range)
             if (savedSettings.mouseSensitivity !== undefined) {
                 if (savedSettings.mouseSensitivity <= 1.0) {
                     // Old format: 0-1 range, convert to 0-100 range (0.5 = 100)
-                    this.settings.mouseSensitivity = Math.round((savedSettings.mouseSensitivity / 0.5) * 100);
-                    console.log(`Converted legacy sensitivity: ${savedSettings.mouseSensitivity} -> ${this.settings.mouseSensitivity}`);
+                    this.settings.vrViewSensitivity = Math.round((savedSettings.mouseSensitivity / 0.5) * 100);
+                    console.log(`Converted legacy sensitivity: ${savedSettings.mouseSensitivity} -> ${this.settings.vrViewSensitivity}`);
                 }
             }
         }
@@ -2129,16 +2207,13 @@ class VRPlayer {
         // Set mouse sensitivity value
         const mouseSensitivity = document.getElementById('mouse-sensitivity');
         if (mouseSensitivity) {
-            mouseSensitivity.value = this.settings.mouseSensitivity;
-            document.getElementById('sensitivity-value').textContent = this.settings.mouseSensitivity;
+            mouseSensitivity.value = this.settings.vrViewSensitivity;
         }
 
         // Set VR zoom sensitivity value
         const vrZoomLevel = document.getElementById('vr-zoom-sensitivity');
         if (vrZoomLevel) {
             vrZoomLevel.value = this.settings.vrZoomLevel;
-            // Update display using the centralized function
-            this.updateVRZoomDisplay();
         }
 
         // Set theme select value
@@ -2153,10 +2228,16 @@ class VRPlayer {
             languageSelect.value = this.settings.language;
         }
 
-        // Set VR mode select value
-        const vrModeSelect = document.getElementById('vr-mode-select');
-        if (vrModeSelect) {
-            vrModeSelect.value = this.vrMode;
+        // Set VR FOV select value
+        const vrFovSelect = document.getElementById('vr-fov-select');
+        if (vrFovSelect) {
+            vrFovSelect.value = this.vrFov;
+        }
+
+        // Set VR format select value
+        const vrFormatSelect = document.getElementById('vr-format-select');
+        if (vrFormatSelect) {
+            vrFormatSelect.value = this.vrFormat;
         }
 
         // Set playlist default to closed
@@ -2166,6 +2247,9 @@ class VRPlayer {
 
         // Initialize button states
         this.updateButtonStates();
+
+        // Update slider value displays
+        this.updateSliderValueDisplays();
     }
 
     // Update button states
@@ -2201,7 +2285,8 @@ class VRPlayer {
     saveSettings() {
         const settingsToSave = {
             ...this.settings,
-            vrMode: this.vrMode
+            vrFov: this.vrFov,
+            vrFormat: this.vrFormat
         };
         localStorage.setItem('vrPlayerSettings', JSON.stringify(settingsToSave));
     }
@@ -2232,6 +2317,9 @@ class VRPlayer {
         // Update any dynamic content that may need refreshing
         this.updatePlaylist();
         this.updateVRPlaylist();
+
+        // Update slider value displays
+        this.updateSliderValueDisplays();
     }
 
     addToPlaylist(filePath) {
@@ -2465,8 +2553,8 @@ class VRPlayer {
 
         if (document.getElementById('loop')) {
             document.getElementById('loop').checked = this.settings.loop;
-            document.getElementById('mouse-sensitivity').value = this.settings.mouseSensitivity;
-            document.getElementById('sensitivity-value').textContent = this.settings.mouseSensitivity;
+            document.getElementById('mouse-sensitivity').value = this.settings.vrViewSensitivity;
+            document.getElementById('sensitivity-value').textContent = this.settings.vrViewSensitivity;
         }
     }
 
@@ -2738,7 +2826,7 @@ class VRPlayer {
                 const baseRadius = 500;
                 const newRadius = baseRadius * scale;
 
-                if (this.vrMode === '180') {
+                if (this.vrFov === '180') {
                     videosphere.setAttribute('geometry', {
                         radius: newRadius,
                         phiLength: 180,
@@ -2756,7 +2844,7 @@ class VRPlayer {
                     });
                 }
 
-                console.log(`VR zoom: ${scale}, FOV: ${newFOV}, distance: ${newDistance}, radius: ${newRadius}, mode: ${this.vrMode}°`);
+                console.log(`VR zoom: ${scale}, FOV: ${newFOV}, distance: ${newDistance}, radius: ${newRadius}, mode: ${this.vrFov}°`);
             } catch (error) {
                 console.error('Zoom setting failed:', error);
             }
@@ -2852,9 +2940,14 @@ class VRPlayer {
 
     // Update VR mode selection to reflect current state
     updateVRModeSelection() {
-        const vrModeSelect = document.getElementById('vr-mode-select');
-        if (vrModeSelect) {
-            vrModeSelect.value = this.vrMode;
+        const vrFovSelect = document.getElementById('vr-fov-select');
+        const vrFormatSelect = document.getElementById('vr-format-select');
+
+        if (vrFovSelect) {
+            vrFovSelect.value = this.vrFov;
+        }
+        if (vrFormatSelect) {
+            vrFormatSelect.value = this.vrFormat;
         }
     }
 
@@ -2933,6 +3026,21 @@ class VRPlayer {
     showTrackingStatus(message) {
         this.showNotification(message, 'info');
     }
+
+    // Helper to update slider value displays
+    updateSliderValueDisplays() {
+        const mouseSensitivity = document.getElementById('mouse-sensitivity');
+        const sensitivityValue = document.getElementById('sensitivity-value');
+        if (mouseSensitivity && sensitivityValue) {
+            sensitivityValue.textContent = mouseSensitivity.value;
+        }
+        const vrZoomLevel = document.getElementById('vr-zoom-sensitivity');
+        const vrZoomValue = document.getElementById('vr-zoom-value');
+        if (vrZoomLevel && vrZoomValue) {
+            const multiplier = parseInt(vrZoomLevel.value) / 100;
+            vrZoomValue.textContent = `${multiplier.toFixed(1)}x`;
+        }
+    }
 }
 
 let vrScene = null;
@@ -2997,7 +3105,7 @@ function bindMouseEvents() {
         if (!camera || !player) return;
 
         if (player.settings.mouseTracking || window.isMouseDown) {
-            const sensitivity = (player.settings.mouseSensitivity / 100) * 0.5;
+            const sensitivity = (player.settings.vrViewSensitivity / 100) * 0.5;
 
             let deltaX, deltaY;
             if (document.pointerLockElement) {

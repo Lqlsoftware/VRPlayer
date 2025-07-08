@@ -23,7 +23,7 @@
                     <!-- VR Mode Status -->
                     <div id="vr-mode-status" class="vr-mode-status">
                         <div class="vr-mode-indicator">
-                            <span id="vr-mode-text">360°</span>
+                            <span id="vr-mode-text">360° Mono</span>
                         </div>
                     </div>
                 </div>
@@ -138,40 +138,70 @@
                 </div>
                 <div class="settings-content">
                     <div class="setting-group">
-                        <label data-i18n="settings.loop">循环播放</label>
-                        <input type="checkbox" id="loop">
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.loop">循环播放</label>
+                            <div class="vr-setting-control">
+                                <input type="checkbox" id="loop">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="setting-group" id="vr-settings-group" style="display: none;">
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.vr_view_sensitivity">视角灵敏度</label>
+                            <div class="vr-setting-control">
+                                <input type="range" id="mouse-sensitivity" min="0" max="100" step="1" value="40">
+                                <span id="sensitivity-value">40</span>
+                            </div>
+                        </div>
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.vr_view_zoom">视角缩放</label>
+                            <div class="vr-setting-control">
+                                <input type="range" id="vr-zoom-sensitivity" min="50" max="400" step="10" value="100">
+                                <span id="vr-zoom-value">1.0x</span>
+                            </div>
+                        </div>
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.vr_fov">VR 视野</label>
+                            <div class="vr-setting-control">
+                                <select id="vr-fov-select">
+                                    <option value="180" data-i18n="settings.vr_fov_180">180° 半球</option>
+                                    <option value="360" data-i18n="settings.vr_fov_360">360° 全景</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.vr_format">VR 格式</label>
+                            <div class="vr-setting-control">
+                                <select id="vr-format-select">
+                                    <option value="mono" data-i18n="settings.vr_format_mono">单眼 (Mono)</option>
+                                    <option value="sbs" data-i18n="settings.vr_format_sbs">左右分屏 (SBS)</option>
+                                    <option value="tb" data-i18n="settings.vr_format_tb">上下分屏 (TB)</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="setting-group">
-                        <label data-i18n="settings.mouse_sensitivity">鼠标追踪灵敏度</label>
-                        <input type="range" id="mouse-sensitivity" min="0" max="100" step="1" value="40">
-                        <span id="sensitivity-value">40</span>
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.theme">主题</label>
+                            <div class="vr-setting-control">
+                                <select id="theme-select">
+                                    <option value="system" data-i18n="settings.theme_system">跟随系统</option>
+                                    <option value="light" data-i18n="settings.theme_light">浅色模式</option>
+                                    <option value="dark" data-i18n="settings.theme_dark">深色模式</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="setting-group">
-                        <label data-i18n="settings.vr_zoom_sensitivity">VR 缩放程度</label>
-                        <input type="range" id="vr-zoom-sensitivity" min="50" max="400" step="10" value="100">
-                        <span id="vr-zoom-value">1.0x</span>
-                    </div>
-                    <div class="setting-group">
-                        <label data-i18n="settings.vr_mode">VR Mode</label>
-                        <select id="vr-mode-select">
-                            <option value="180" data-i18n="settings.vr_mode_180">180° Mode (Mono)</option>
-                            <option value="360" data-i18n="settings.vr_mode_360">360° Mode (Mono)</option>
-                        </select>
-                    </div>
-                    <div class="setting-group">
-                        <label data-i18n="settings.theme">主题</label>
-                        <select id="theme-select">
-                            <option value="system" data-i18n="settings.theme_system">跟随系统</option>
-                            <option value="light" data-i18n="settings.theme_light">浅色模式</option>
-                            <option value="dark" data-i18n="settings.theme_dark">深色模式</option>
-                        </select>
-                    </div>
-                    <div class="setting-group">
-                        <label data-i18n="settings.language">语言</label>
-                        <select id="language-select">
-                            <option value="zh-CN">简体中文</option>
-                            <option value="en-US">English</option>
-                        </select>
+                        <div class="vr-setting-row">
+                            <label data-i18n="settings.language">语言</label>
+                            <div class="vr-setting-control">
+                                <select id="language-select">
+                                    <option value="zh-CN">简体中文</option>
+                                    <option value="en-US">English</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
