@@ -145,7 +145,6 @@
 | **B** | Toggle VR File Format (SBS/TB/Mono) |
 | **V** | Toggle VR Field of View (180/360) |
 | **R** | Reset VR Zoom and View (default center to left eye) |
-| **C** | Center to Center Position |
 | **Ctrl/Cmd+Up/Down** | VR Mode Zoom |
 | **Escape** | Exit VR Mode |
 
@@ -187,9 +186,8 @@ For optimal VR video viewing experience on regular displays, the player defaults
 
 - **Auto Left-eye Center**: Automatically moves view to left eye image center when opening VR video
 - **Manual Control**: 
-  - `V Key`: Reset view (default center to left eye)
-  - `C Key`: Center to video center position
-- **Mouse Tracking**: `K Key` toggles mouse tracking mode
+  - `R Key`: Reset view, zoom level (default center to left eye)
+- **Mouse Tracking**: `T Key` toggles mouse tracking mode
 
 ## 🛠️ Tech Stack
 

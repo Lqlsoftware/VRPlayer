@@ -806,15 +806,6 @@ class VRPlayer {
                     this.toggleVRFov();
                 }
                 break;
-
-            case 'KeyC':
-                if (this.isVRMode) {
-                    e.preventDefault();
-                    this.centerOnMiddle();
-                }
-                break;
-
-
         }
     }
 
@@ -826,7 +817,9 @@ class VRPlayer {
     }
 
     resetVRView() {
-        this.centerOnLeftEye();
+        // Reset view to default position based on FOV mode
+        const defaultRotation = this.vrFov === '180' ? '0 -90 0' : '0 0 0';
+        this.setCameraRotation(defaultRotation);
     }
 
     resetVRZoomAndView() {
@@ -834,28 +827,15 @@ class VRPlayer {
         this.currentVRScale = this.settings.vrZoomLevel / 100;
         this.updateVRScale(this.currentVRScale);
 
-        // Reset VR view
-        this.centerOnLeftEye(false); // Don't show individual view reset message
+        // Reset VR view based on FOV mode
+        this.resetVRView();
 
         // Show combined notification
         const message = window.i18n ? window.i18n.t('messages.vr_zoom_view_reset') : 'VR Zoom & View Reset';
         this.showNotification(`${message}: ${this.currentVRScale.toFixed(1)}x`, 'success');
     }
 
-    centerOnLeftEye(showStatus = true) {
-        const message = showStatus ? (window.i18n ? window.i18n.t('messages.center_left') : 'Centered on left eye') : null;
-        this.setCameraRotation('0 -90 0', message);
-    }
 
-    centerOnRightEye() {
-        const message = window.i18n ? window.i18n.t('messages.center_right') : 'Centered on right eye';
-        this.setCameraRotation('0 90 0', message);
-    }
-
-    centerOnMiddle() {
-        const message = window.i18n ? window.i18n.t('messages.center_middle') : 'Centered on middle';
-        this.setCameraRotation('0 0 0', message);
-    }
 
     setCameraRotation(rotation, statusMessage) {
         const scene = document.querySelector('a-scene');
@@ -973,9 +953,7 @@ class VRPlayer {
         const message = window.i18n ? window.i18n.t(`messages.fov_${this.vrFov}`) : `VR FOV: ${this.vrFov}°`;
         this.showNotification(message, 'success');
 
-        if (this.vrFov === '180') {
-            this.centerOnLeftEye(false);
-        }
+        this.resetVRView();
 
         // Update VR mode selection in settings panel if it's open
         this.updateVRModeSelection();
@@ -1034,9 +1012,7 @@ class VRPlayer {
 
         this.updateVRModeStatus();
 
-        if (this.vrFov === '180') {
-            this.centerOnLeftEye(false);
-        }
+        this.resetVRView();
     }
 
     updateVRModeStatus() {
