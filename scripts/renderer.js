@@ -7,6 +7,7 @@ class VRPlayer {
         this.currentIndex = 0;
         this.isPlaying = false;
         this.isVRMode = false;
+        this.isVrAutoDetected = false;
         this.sharedVideoElement = null;
         this.isFullscreen = false;
         this.controlsHideTimer = null;
@@ -232,7 +233,6 @@ class VRPlayer {
 
         // VR FOV selection event listener
         document.getElementById('vr-fov-select').addEventListener('change', (e) => {
-            this.updateSetting('vrFov', e.target.value);
             this.vrFov = e.target.value;
             // Update VR mode geometry if currently in VR mode
             if (this.isVRMode) {
@@ -242,7 +242,6 @@ class VRPlayer {
 
         // VR Format selection event listener
         document.getElementById('vr-format-select').addEventListener('change', (e) => {
-            this.updateSetting('vrFormat', e.target.value);
             this.vrFormat = e.target.value;
             // Update VR mode geometry if currently in VR mode
             if (this.isVRMode) {
@@ -980,8 +979,6 @@ class VRPlayer {
 
         // Update VR mode selection in settings panel if it's open
         this.updateVRModeSelection();
-
-        this.saveSettings();
     }
 
     toggleVRFormat() {
@@ -997,11 +994,7 @@ class VRPlayer {
 
         // Update VR mode selection in settings panel if it's open
         this.updateVRModeSelection();
-
-        this.saveSettings();
     }
-
-
 
     updateVRModeGeometry() {
         const videosphere = document.querySelector('a-videosphere');
@@ -1068,10 +1061,6 @@ class VRPlayer {
         }
     }
 
-
-
-
-
     async loadVideo(filePath) {
         if (!this.sharedVideoElement) {
             console.error('Shared video element not initialized');
@@ -1082,36 +1071,38 @@ class VRPlayer {
             this.currentVideo = filePath;
             this.sharedVideoElement.src = `file://${filePath}`;
 
-            const isVRByName = this.isVRVideo(filePath);
+            const vrDetectionResult = await this.detectVRVideo(filePath);
 
-            if (isVRByName) {
-                const detectedMode = this.detectVRMode(filePath);
-                this.vrFov = detectedMode;
+            if (vrDetectionResult.isVR) {
+                this.isVrAutoDetected = true;
+                this.vrFov = vrDetectionResult.fov;
+                this.vrFormat = vrDetectionResult.format;
 
-                // Update VR mode selection in settings panel
                 this.updateVRModeSelection();
 
-                // Save the detected VR mode
-                this.saveSettings();
-
-                setTimeout(() => {
-                    if (!this.isVRMode) {
-                        this.enterVRMode();
-                    } else {
-                        this.updateVRModeGeometry();
-                    }
-                }, 500);
+                if (!this.isVRMode) {
+                    this.enterVRMode();
+                } else {
+                    this.updateVRModeGeometry();
+                }
             }
 
             this.sharedVideoElement.addEventListener('loadedmetadata', () => {
-                if (!isVRByName && this.checkVideoResolution()) {
-                    console.log('VR video detected by resolution, preparing to enter VR mode');
-                    setTimeout(() => {
-                        if (!this.isVRMode) {
-                            console.log('Auto-entering VR mode');
-                            this.enterVRMode();
+                if (!vrDetectionResult.isVR) {
+                    this.detectVRVideo(filePath).then(result => {
+                        if (result.isVR) {
+                            this.isVrAutoDetected = true;
+                            this.vrFov = result.fov;
+                            this.vrFormat = result.format;
+                            this.updateVRModeSelection();
+
+                            if (!this.isVRMode) {
+                                this.enterVRMode();
+                            } else {
+                                this.updateVRModeGeometry();
+                            }
                         }
-                    }, 100);
+                    });
                 }
             }, { once: true });
 
@@ -1224,6 +1215,7 @@ class VRPlayer {
             this.sharedVideoElement.pause();
             this.sharedVideoElement.currentTime = 0;
             this.isPlaying = false;
+            this.isVrAutoDetected = false;
             this.updatePlayButton();
             this.updateProgress();
 
@@ -1830,13 +1822,10 @@ class VRPlayer {
             text-align: center;
         `;
 
-        // Check if auto-entered VR mode due to VR video detection
-        const isAutoEntered = this.isVRVideo(this.currentVideo) || this.checkVideoResolution();
-
         const formatText = window.i18n ? window.i18n.t(`settings.vr_format_${this.vrFormat}`) : this.vrFormat.toUpperCase();
         const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | T Tracking | B Toggle 180/360° | V Toggle Format | Mouse Wheel Zoom';
 
-        if (isAutoEntered) {
+        if (this.isVrAutoDetected) {
             const autoDetectedText = window.i18n ? window.i18n.t('messages.vr_auto_detected') : '🎯 VR video detected, automatically entered VR mode (mono display)';
             notification.innerHTML = `
                 <div>${autoDetectedText}</div>
@@ -2173,18 +2162,6 @@ class VRPlayer {
             const savedSettings = JSON.parse(saved);
             this.settings = { ...this.settings, ...savedSettings };
 
-            // Load VR settings
-            if (savedSettings.vrFov) {
-                this.vrFov = savedSettings.vrFov;
-            }
-            if (savedSettings.vrFormat) {
-                this.vrFormat = savedSettings.vrFormat;
-            }
-            // Legacy support for old vrMode setting
-            if (savedSettings.vrMode && !savedSettings.vrFov) {
-                this.vrFov = savedSettings.vrMode;
-            }
-
             // Handle legacy mouseSensitivity values (convert from 0-1 range to 0-100 range)
             if (savedSettings.mouseSensitivity !== undefined) {
                 if (savedSettings.mouseSensitivity <= 1.0) {
@@ -2210,6 +2187,8 @@ class VRPlayer {
             vrZoomLevel.value = this.settings.vrZoomLevel;
         }
 
+        // VR format is not persisted, so we don't set it from saved settings
+
         // Set theme select value
         const themeSelect = document.getElementById('theme-select');
         if (themeSelect) {
@@ -2220,18 +2199,6 @@ class VRPlayer {
         const languageSelect = document.getElementById('language-select');
         if (languageSelect) {
             languageSelect.value = this.settings.language;
-        }
-
-        // Set VR FOV select value
-        const vrFovSelect = document.getElementById('vr-fov-select');
-        if (vrFovSelect) {
-            vrFovSelect.value = this.vrFov;
-        }
-
-        // Set VR format select value
-        const vrFormatSelect = document.getElementById('vr-format-select');
-        if (vrFormatSelect) {
-            vrFormatSelect.value = this.vrFormat;
         }
 
         // Set playlist default to closed
@@ -2278,9 +2245,7 @@ class VRPlayer {
 
     saveSettings() {
         const settingsToSave = {
-            ...this.settings,
-            vrFov: this.vrFov,
-            vrFormat: this.vrFormat
+            ...this.settings
         };
         localStorage.setItem('vrPlayerSettings', JSON.stringify(settingsToSave));
     }
@@ -2418,6 +2383,7 @@ class VRPlayer {
         this.videoList = [];
         this.currentIndex = 0;
         this.currentVideo = null;
+        this.isVrAutoDetected = false;
         this.updatePlaylist();
         this.updateVRPlaylist();
         this.showPlaceholder();
@@ -2555,111 +2521,24 @@ class VRPlayer {
         }
     }
 
-    isVRVideo(filePath) {
-        if (!filePath) return false;
-
-        const fileName = filePath.toLowerCase();
-
-        const vrKeywords = [
-            'vr', '360', '180', 'sbs', 'side-by-side', 'sidebyside',
-            'tb', 'top-bottom', 'topbottom', 'ou', 'over-under',
-            'stereo', '3d', 'cardboard', 'oculus', 'gear',
-            'pano', 'panorama', 'spherical', 'equirectangular',
-            'cubemap', 'fisheye', 'fulldome', 'immersive',
-            'monoscopic', 'stereoscopic', 'dome', 'planetarium',
-            'quest', 'vive', 'rift', 'pico', 'wmr', 'valve',
-            'varjo', 'pimax', 'samsung', 'daydream', 'gopro',
-            '4k360', '8k360', '4k180', '8k180', '6k', '8k', '360p', '180p',
-            'virtual', 'reality', 'experience', 'immerse',
-            'spatial', 'volumetric', 'ambisonics'
-        ];
-
-        const matchedKeyword = vrKeywords.find(keyword => fileName.includes(keyword));
-
-        if (matchedKeyword) {
-            console.log(`VR video detected by filename: "${fileName}" contains keyword "${matchedKeyword}"`);
-            return true;
+    /**
+     * Detect VR video format
+     * @param {string} filePath - video file path
+     * @returns {Promise<Object>} - VR detection result
+     */
+    async detectVRVideo(filePath) {
+        if (!window.VRDetector) {
+            console.error('VRDetector not available');
+            return { isVR: false, fov: '180', format: 'mono' };
         }
 
-        console.log(`No VR keywords found in filename: "${fileName}"`);
-        return false;
-    }
-
-    detectVRMode(filePath) {
-        if (!filePath) return '180';
-
-        const fileName = filePath.toLowerCase();
-
-        const keywords360 = [
-            '360', '360°', 'full360', 'full-360',
-            '4k360', '8k360', '360p', '360vr', 'vr360',
-            'spherical', 'equirectangular', 'full-sphere'
-        ];
-
-        const keywords180 = [
-            '180', '180°', 'half180', 'half-180',
-            '4k180', '8k180', '180p', '180vr', 'vr180',
-            'hemisphere', 'half-sphere', 'front180'
-        ];
-
-        for (const keyword of keywords180) {
-            if (fileName.includes(keyword)) {
-                console.log(`180 degree video detected: "${fileName}" contains keyword "${keyword}"`);
-                return '180';
-            }
+        try {
+            const result = await window.VRDetector.detectVRVideo(filePath, this.sharedVideoElement);
+            return result;
+        } catch (error) {
+            console.error('Error detecting VR video:', error);
+            return { isVR: false, fov: '180', format: 'mono' };
         }
-
-        for (const keyword of keywords360) {
-            if (fileName.includes(keyword)) {
-                console.log(`360 degree video detected: "${fileName}" contains keyword "${keyword}"`);
-                return '360';
-            }
-        }
-
-        console.log(`No specific VR mode keywords detected, using default 180 degree mode: "${fileName}"`);
-        return '180';
-    }
-
-    checkVideoResolution() {
-        if (!this.sharedVideoElement) return false;
-
-        const video = this.sharedVideoElement;
-
-        if (video.readyState < 2) return false;
-
-        const width = video.videoWidth;
-        const height = video.videoHeight;
-
-        if (width === 0 || height === 0) return false;
-
-        const aspectRatio = width / height;
-
-        const vrAspectRatios = [
-            { ratio: 2.0, tolerance: 0.1, description: '360° panoramic video (2:1)' },
-            { ratio: 1.0, tolerance: 0.1, description: '180° video (1:1)' },
-            { ratio: 16 / 9, tolerance: 0.05, description: '180° video (16:9)' },
-            { ratio: 4 / 3, tolerance: 0.05, description: '180° video (4:3)' },
-            { ratio: 32 / 9, tolerance: 0.2, description: 'SBS 16:9 stereo video' },
-            { ratio: 8 / 3, tolerance: 0.2, description: 'SBS 4:3 stereo video' },
-            { ratio: 4.0, tolerance: 0.2, description: 'SBS 2:1 stereo video' },
-            { ratio: 16 / 18, tolerance: 0.1, description: 'TB 16:9 stereo video' },
-            { ratio: 4 / 6, tolerance: 0.1, description: 'TB 4:3 stereo video' },
-            { ratio: 1.0, tolerance: 0.05, description: 'TB 1:1 stereo video' },
-            { ratio: 1.33, tolerance: 0.05, description: '4:3 VR video' },
-            { ratio: 1.78, tolerance: 0.05, description: '16:9 VR video' },
-            { ratio: 2.35, tolerance: 0.1, description: 'Ultra-wide VR video' }
-        ];
-
-        const matchedRatio = vrAspectRatios.find(({ ratio, tolerance }) =>
-            Math.abs(aspectRatio - ratio) < tolerance
-        );
-
-        if (matchedRatio) {
-            console.log(`VR video resolution detected: ${width}x${height} (${aspectRatio.toFixed(2)}:1) - ${matchedRatio.description}`);
-            return true;
-        }
-
-        return false;
     }
 
     hidePlaylist() {
@@ -2945,6 +2824,16 @@ class VRPlayer {
         }
         if (vrFormatSelect) {
             vrFormatSelect.value = this.vrFormat;
+        }
+
+        if (vrFormatSelect && !vrFormatSelect.hasEventListener) {
+            vrFormatSelect.addEventListener('change', (e) => {
+                this.vrFormat = e.target.value;
+                if (this.isVRMode) {
+                    this.updateVRModeGeometry();
+                }
+            });
+            vrFormatSelect.hasEventListener = true;
         }
     }
 
