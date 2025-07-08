@@ -131,7 +131,7 @@
 |-----|----------|
 | **Space** | Play/Pause |
 | **M** | Mute/Unmute |
-| **Ctrl+F** / **Enter** | Toggle Fullscreen |
+| **Enter** | Toggle Fullscreen |
 | **F11** | Enter/Exit VR Mode |
 | **↑** / **↓** | Volume Control |
 | **←** / **→** / **Mouse Side Buttons** | Seek backward/forward 10 seconds |
@@ -141,10 +141,10 @@
 
 | Key | Function |
 |-----|----------|
-| **K** | Toggle Mouse Tracking Mode |
-| **I** | Toggle 180°/360° Mode |
-| **R** | Reset VR Zoom |
-| **V** | Reset VR View (default center to left eye) |
+| **T** | Toggle Mouse Tracking Mode |
+| **B** | Toggle VR File Format (SBS/TB/Mono) |
+| **V** | Toggle VR Field of View (180/360) |
+| **R** | Reset VR Zoom and View (default center to left eye) |
 | **C** | Center to Center Position |
 | **Ctrl/Cmd+Up/Down** | VR Mode Zoom |
 | **Escape** | Exit VR Mode |

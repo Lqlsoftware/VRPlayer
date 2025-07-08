@@ -737,15 +737,6 @@ class VRPlayer {
                 e.preventDefault();
                 this.togglePlayPause();
                 break;
-            case 'KeyF':
-                if (this.isVRMode) {
-                    e.preventDefault();
-                    this.toggleVRFov();
-                } else if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    this.toggleFullscreen();
-                }
-                break;
             case 'F11':
                 e.preventDefault();
                 this.toggleVRMode();
@@ -798,23 +789,22 @@ class VRPlayer {
                     this.resetVRZoomAndView();
                 }
                 break;
-            case 'KeyK':
+            case 'KeyT':
                 if (this.isVRMode) {
                     e.preventDefault();
                     this.toggleMouseTracking();
                 }
                 break;
-            case 'KeyF':
-                if (this.isVRMode) {
-                    e.preventDefault();
-                    this.toggleVRFov();
-                }
-                break;
-
-            case 'KeyV':
+            case 'KeyB':
                 if (this.isVRMode) {
                     e.preventDefault();
                     this.toggleVRFormat();
+                }
+                break;
+            case 'KeyV':
+                if (this.isVRMode) {
+                    e.preventDefault();
+                    this.toggleVRFov();
                 }
                 break;
 
@@ -1844,7 +1834,7 @@ class VRPlayer {
         const isAutoEntered = this.isVRVideo(this.currentVideo) || this.checkVideoResolution();
 
         const formatText = window.i18n ? window.i18n.t(`settings.vr_format_${this.vrFormat}`) : this.vrFormat.toUpperCase();
-        const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | K Tracking | F Toggle 180/360° | V Toggle Format | Mouse Wheel Zoom';
+        const controlsHelp = window.i18n ? window.i18n.t('messages.vr_controls_help') : 'ESC Exit | Enter Fullscreen | T Tracking | B Toggle 180/360° | V Toggle Format | Mouse Wheel Zoom';
 
         if (isAutoEntered) {
             const autoDetectedText = window.i18n ? window.i18n.t('messages.vr_auto_detected') : '🎯 VR video detected, automatically entered VR mode (mono display)';
