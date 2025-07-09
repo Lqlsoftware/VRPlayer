@@ -213,6 +213,9 @@ class VRDetector {
             canvas.width = width;
             canvas.height = height;
 
+            // Store original time position
+            const originalTime = videoElement.currentTime;
+
             // Get the frame at the middle of the video
             const seekTime = videoElement.duration / 2;
             console.log('Seeking to time:', seekTime, 'duration:', videoElement.duration);
@@ -239,6 +242,9 @@ class VRDetector {
             if (result.isVR) {
                 console.log(`VR detected from frame content: ${result.description}`);
             }
+
+            // Reset video position to original time
+            videoElement.currentTime = originalTime;
 
             return result;
 
