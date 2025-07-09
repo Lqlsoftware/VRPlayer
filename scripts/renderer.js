@@ -1044,6 +1044,26 @@ class VRPlayer {
         }
 
         try {
+            // Exit VR mode if currently in VR mode
+            if (this.isVRMode) {
+                this.exitVRMode();
+            }
+
+            // Reset VR states to default values when opening a new file
+            this.isVRMode = false;
+            this.isVrAutoDetected = false;
+            this.vrFov = '180'; // Default to 180 degree
+            this.vrFormat = 'mono'; // Default to mono format
+
+            // Reset VR zoom to default
+            this.currentVRScale = this.settings.vrZoomLevel / 100;
+
+            // Reset camera rotation to default
+            this.resetVRView();
+
+            // Update VR mode selection UI to reflect default values
+            this.updateVRModeSelection();
+
             this.currentVideo = filePath;
             this.sharedVideoElement.src = `file://${filePath}`;
 
@@ -1100,6 +1120,26 @@ class VRPlayer {
     }
 
     loadVideoFolder(files) {
+        // Exit VR mode if currently in VR mode
+        if (this.isVRMode) {
+            this.exitVRMode();
+        }
+
+        // Reset VR states to default values when loading a folder
+        this.isVRMode = false;
+        this.isVrAutoDetected = false;
+        this.vrFov = '180'; // Default to 180 degree
+        this.vrFormat = 'mono'; // Default to mono format
+
+        // Reset VR zoom to default
+        this.currentVRScale = this.settings.vrZoomLevel / 100;
+
+        // Reset camera rotation to default
+        this.resetVRView();
+
+        // Update VR mode selection UI to reflect default values
+        this.updateVRModeSelection();
+
         this.videoList = files;
         this.currentIndex = 0;
 
@@ -1191,7 +1231,18 @@ class VRPlayer {
             this.sharedVideoElement.pause();
             this.sharedVideoElement.currentTime = 0;
             this.isPlaying = false;
+
+            // Reset VR states to default values when stopping video
             this.isVrAutoDetected = false;
+            this.vrFov = '180'; // Default to 180 degree
+            this.vrFormat = 'mono'; // Default to mono format
+
+            // Reset VR zoom to default
+            this.currentVRScale = this.settings.vrZoomLevel / 100;
+
+            // Update VR mode selection UI to reflect default values
+            this.updateVRModeSelection();
+
             this.updatePlayButton();
             this.updateProgress();
 
@@ -1832,6 +1883,20 @@ class VRPlayer {
         document.body.classList.remove('vr-mode');
         this.isVRMode = false;
 
+        // Reset VR states to default values when exiting VR mode
+        this.isVrAutoDetected = false;
+        this.vrFov = '180'; // Default to 180 degree
+        this.vrFormat = 'mono'; // Default to mono format
+
+        // Reset VR zoom to default
+        this.currentVRScale = this.settings.vrZoomLevel / 100;
+
+        // Reset camera rotation to default
+        this.resetVRView();
+
+        // Update VR mode selection UI to reflect default values
+        this.updateVRModeSelection();
+
         this.stopControlsAutoHide();
 
         const videoContainer = document.getElementById('video-container');
@@ -2359,7 +2424,27 @@ class VRPlayer {
         this.videoList = [];
         this.currentIndex = 0;
         this.currentVideo = null;
+
+        // Exit VR mode if currently in VR mode
+        if (this.isVRMode) {
+            this.exitVRMode();
+        }
+
+        // Reset VR states to default values when clearing playlist
+        this.isVRMode = false;
         this.isVrAutoDetected = false;
+        this.vrFov = '180'; // Default to 180 degree
+        this.vrFormat = 'mono'; // Default to mono format
+
+        // Reset VR zoom to default
+        this.currentVRScale = this.settings.vrZoomLevel / 100;
+
+        // Reset camera rotation to default
+        this.resetVRView();
+
+        // Update VR mode selection UI to reflect default values
+        this.updateVRModeSelection();
+
         this.updatePlaylist();
         this.updateVRPlaylist();
         this.showPlaceholder();
@@ -2479,6 +2564,27 @@ class VRPlayer {
     playNext() {
         if (this.currentIndex < this.videoList.length - 1) {
             this.currentIndex++;
+
+            // Exit VR mode if currently in VR mode
+            if (this.isVRMode) {
+                this.exitVRMode();
+            }
+
+            // Reset VR states to default values when playing next video
+            this.isVRMode = false;
+            this.isVrAutoDetected = false;
+            this.vrFov = '180'; // Default to 180 degree
+            this.vrFormat = 'mono'; // Default to mono format
+
+            // Reset VR zoom to default
+            this.currentVRScale = this.settings.vrZoomLevel / 100;
+
+            // Reset camera rotation to default
+            this.resetVRView();
+
+            // Update VR mode selection UI to reflect default values
+            this.updateVRModeSelection();
+
             this.loadVideo(this.videoList[this.currentIndex]);
         }
     }
