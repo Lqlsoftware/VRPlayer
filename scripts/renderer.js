@@ -1859,19 +1859,8 @@ class VRPlayer {
         document.body.classList.remove('vr-mode');
         this.isVRMode = false;
 
-        // Reset VR states to default values when exiting VR mode
-        this.isVrAutoDetected = false;
-        this.vrFov = '180'; // Default to 180 degree
-        this.vrFormat = 'mono'; // Default to mono format
-
         // Reset VR zoom to default
         this.currentVRScale = this.settings.vrZoomLevel / 100;
-
-        // Reset camera rotation to default
-        this.resetVRView();
-
-        // Update VR mode selection UI to reflect default values
-        this.updateVRModeSelection();
 
         this.stopControlsAutoHide();
 
