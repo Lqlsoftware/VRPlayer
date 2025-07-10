@@ -610,87 +610,22 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-/* Volume control container */
-.video-controls .volume-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-right: 8px;
-}
-
-/* Volume bar */
-.video-controls .volume-bar {
-    width: 60px;
-    height: 6px;
-    border-radius: 3px;
-    background: var(--video-controls-progress-bg);
-    outline: none;
-    cursor: pointer;
-    -webkit-appearance: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.video-controls .volume-bar::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--video-controls-thumb-bg);
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--video-controls-thumb-border);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.video-controls .volume-bar::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--video-controls-thumb-bg);
-    cursor: pointer;
-    border: 2px solid var(--video-controls-thumb-border);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.video-controls .volume-bar:hover::-webkit-slider-thumb {
-    background: var(--video-controls-text-hover);
-    transform: scale(1.1);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.video-controls .volume-bar:hover::-moz-range-thumb {
-    background: var(--video-controls-text-hover);
-    transform: scale(1.1);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* Volume display */
-.video-controls .volume-display {
-    font-size: 11px;
-    color: var(--video-controls-text);
-    min-width: 30px;
-    text-align: center;
-    font-weight: 500;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
-}
-
 /* Volume button */
 .video-controls #volume-btn {
-    width: 32px;
-    height: 32px;
-    padding: 6px;
+    width: 40px;
+    height: 40px;
 }
 
 .video-controls #volume-btn svg {
-    width: 16px;
-    height: 16px;
-    fill: rgba(255, 255, 255, 0.8);
+    width: 18px;
+    height: 18px;
+    fill: var(--video-controls-text);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
 }
 
 .video-controls #volume-btn:hover svg {
-    fill: white;
+    fill: var(--video-controls-text-hover);
 }
 
 .video-controls #volume-btn.muted svg {
@@ -1125,18 +1060,9 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
         margin: 0 8px;
     }
     
-    .video-controls .volume-bar {
-        width: 50px;
-    }
-    
     .video-controls .time-display {
         font-size: 10px;
         min-width: 110px;
-    }
-    
-    .video-controls .volume-display {
-        font-size: 9px;
-        min-width: 25px;
     }
     
     .vr-mode-indicator {

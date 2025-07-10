@@ -162,14 +162,7 @@ class VRPlayer {
         }
 
         // Volume control events
-        const volumeBar = document.getElementById('volume-bar');
         const volumeBtn = document.getElementById('volume-btn');
-        const volumeDisplay = document.getElementById('volume-display');
-
-        if (volumeBar) {
-            volumeBar.addEventListener('input', (e) => this.setVolume(e.target.value));
-            volumeBar.addEventListener('change', (e) => this.setVolume(e.target.value));
-        }
 
         if (volumeBtn) {
             volumeBtn.addEventListener('click', (e) => {
@@ -393,7 +386,6 @@ class VRPlayer {
                 target.tagName === 'INPUT' ||
                 target.closest('.control-btn') ||
                 target.closest('.progress-bar') ||
-                target.closest('.volume-bar') ||
                 target.closest('button') ||
                 target.closest('input');
 
@@ -1287,17 +1279,11 @@ class VRPlayer {
         const newVolume = Math.max(0, Math.min(1, this.sharedVideoElement.volume + delta));
         this.sharedVideoElement.volume = newVolume;
         this.updateVolumeDisplay();
-    }
 
-    setVolume(value) {
-        if (!this.sharedVideoElement) {
-            console.error('Shared video element not initialized');
-            return;
-        }
-
-        const volume = Math.max(0, Math.min(100, value)) / 100;
-        this.sharedVideoElement.volume = volume;
-        this.updateVolumeDisplay();
+        // Show volume notification
+        const volumePercent = Math.round(newVolume * 100);
+        const volumeText = window.i18n ? window.i18n.t('controls.volume') : 'Volume';
+        this.showNotification(`${volumeText}: ${volumePercent}%`, 'info', 1500);
     }
 
     toggleMute() {
@@ -1308,27 +1294,19 @@ class VRPlayer {
 
         this.sharedVideoElement.muted = !this.sharedVideoElement.muted;
         this.updateVolumeDisplay();
+
+        // Show mute/unmute notification
+        const isMuted = this.sharedVideoElement.muted;
+        const muteText = window.i18n ? window.i18n.t('controls.mute') : 'Mute';
+        const unmuteText = window.i18n ? window.i18n.t('controls.unmute') : 'Unmute';
+        const notificationText = isMuted ? muteText : unmuteText;
+        this.showNotification(notificationText, 'info', 1500);
     }
 
     updateVolumeDisplay() {
         if (!this.sharedVideoElement) return;
 
-        const volumeBar = document.getElementById('volume-bar');
-        const volumeDisplay = document.getElementById('volume-display');
         const volumeBtn = document.getElementById('volume-btn');
-
-        if (volumeBar) {
-            volumeBar.value = this.sharedVideoElement.volume * 100;
-        }
-
-        if (volumeDisplay) {
-            if (this.sharedVideoElement.muted) {
-                const mutedText = window.i18n ? window.i18n.t('messages.muted') : 'Muted';
-                volumeDisplay.textContent = mutedText;
-            } else {
-                volumeDisplay.textContent = Math.round(this.sharedVideoElement.volume * 100) + '%';
-            }
-        }
 
         if (volumeBtn) {
             if (this.sharedVideoElement.muted || this.sharedVideoElement.volume === 0) {
