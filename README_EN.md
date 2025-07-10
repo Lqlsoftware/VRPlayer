@@ -24,6 +24,7 @@
 - [Usage](#usage)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [VR Features](#vr-features)
+- [macOS Installation Guide](#macos-installation-guide)
 - [Tech Stack](#tech-stack)
 - [License](#license)
 - [Contributing](#contributing)
@@ -188,6 +189,32 @@ For optimal VR video viewing experience on regular displays, the player defaults
 - **Manual Control**: 
   - `R Key`: Reset view, zoom level (default center to left eye)
 - **Mouse Tracking**: `T Key` toggles mouse tracking mode
+
+## 🍎 macOS Installation Guide
+
+Since this is an open-source project, we don't have an Apple Developer certificate for code signing. If you encounter a "damaged, cannot be opened" prompt on macOS, please follow these steps to resolve it:
+
+### Quick Solution
+
+Run the following command in Terminal:
+
+```bash
+sudo xattr -cr /Applications/VR\ Player.app
+```
+
+### Why does this happen?
+
+- macOS Gatekeeper security mechanism prevents unsigned or unnotarized applications from running
+- Open-source projects typically don't have Apple Developer certificates, so they cannot be code signed
+- This is a macOS security feature, not an issue with the application
+
+### Security Note
+
+VR Player is open-source, and you can review the source code to confirm its security. If you're concerned about security, we recommend:
+
+1. Review the project's GitHub repository
+2. Check the source code
+3. Test the application in an isolated environment
 
 ## 🛠️ Tech Stack
 
