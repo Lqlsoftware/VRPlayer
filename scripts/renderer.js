@@ -2459,7 +2459,8 @@ class VRPlayer {
 
         const progressBar = document.getElementById('progress-bar');
         const vrProgressBar = document.getElementById('vr-progress-bar');
-        const timeDisplay = document.getElementById('time-display');
+        const currentTimeElement = document.getElementById('current-time');
+        const totalTimeElement = document.getElementById('total-time');
         const vrTimeDisplay = document.getElementById('vr-time-display');
 
         if (this.sharedVideoElement.readyState >= 2) {
@@ -2471,6 +2472,7 @@ class VRPlayer {
 
                 if (progressBar) {
                     progressBar.value = percentage;
+                    progressBar.style.setProperty('--progress-value', percentage + '%');
                 }
                 if (vrProgressBar) {
                     vrProgressBar.value = percentage;
@@ -2478,23 +2480,29 @@ class VRPlayer {
 
                 const currentTimeText = this.formatTime(currentTime);
                 const totalTimeText = this.formatTime(duration);
-                const timeText = `${currentTimeText} / ${totalTimeText}`;
 
-                if (timeDisplay) {
-                    timeDisplay.textContent = timeText;
+                if (currentTimeElement) {
+                    currentTimeElement.textContent = currentTimeText;
+                }
+                if (totalTimeElement) {
+                    totalTimeElement.textContent = totalTimeText;
                 }
                 if (vrTimeDisplay) {
-                    vrTimeDisplay.textContent = timeText;
+                    vrTimeDisplay.textContent = `${currentTimeText} / ${totalTimeText}`;
                 }
             } else {
                 if (progressBar) {
                     progressBar.value = 0;
+                    progressBar.style.setProperty('--progress-value', '0%');
                 }
                 if (vrProgressBar) {
                     vrProgressBar.value = 0;
                 }
-                if (timeDisplay) {
-                    timeDisplay.textContent = '00:00:00 / 00:00:00';
+                if (currentTimeElement) {
+                    currentTimeElement.textContent = '00:00:00';
+                }
+                if (totalTimeElement) {
+                    totalTimeElement.textContent = '00:00:00';
                 }
                 if (vrTimeDisplay) {
                     vrTimeDisplay.textContent = '00:00:00 / 00:00:00';

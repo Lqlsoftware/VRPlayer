@@ -91,7 +91,10 @@
                             </div>
                             <div class="progress-container">
                                 <input type="range" id="progress-bar" min="0" max="100" value="0" class="progress-bar">
-                                <span id="time-display" class="time-display">00:00:00 / 00:00:00</span>
+                                <div class="time-display-container">
+                                    <span id="current-time" class="current-time">00:00:00</span>
+                                    <span id="total-time" class="total-time">00:00:00</span>
+                                </div>
                             </div>
                             <div class="right-controls">
                                 <button id="volume-btn" class="control-btn">

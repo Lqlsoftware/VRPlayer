@@ -48,7 +48,7 @@
     --video-controls-btn-hover-border: rgba(255, 255, 255, 0.25);
     --video-controls-text: rgba(255, 255, 255, 0.95);
     --video-controls-text-hover: rgba(255, 255, 255, 1);
-    --video-controls-progress-bg: rgba(255, 255, 255, 0.2);
+    --video-controls-progress-bg: rgba(255, 255, 255, 0.4);
     --video-controls-thumb-bg: rgba(255, 255, 255, 0.95);
     --video-controls-thumb-border: rgba(255, 255, 255, 0.8);
 }
@@ -296,22 +296,22 @@ body {
 .progress-bar::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #667eea;
+    width: 0px;
+    height: 0px;
+    border-radius: 0;
+    background: transparent;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
 }
 
 .progress-bar::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #667eea;
+    width: 0px;
+    height: 0px;
+    border-radius: 0;
+    background: transparent;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
 }
 
 .time-display {
@@ -468,11 +468,11 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 .control-bar {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     max-width: 900px;
     width: 90%;
     margin: 0 auto;
-    padding: 12px 16px;
+    padding: 10px 16px;
     background: var(--video-controls-bg);
     backdrop-filter: blur(8px) saturate(120%);
     -webkit-backdrop-filter: blur(8px) saturate(120%);
@@ -488,7 +488,7 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 .control-bar .left-controls {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
@@ -503,22 +503,22 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 .control-bar .right-controls {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
 .video-controls .control-btn {
     background: var(--video-controls-btn-bg);
     border: 1px solid var(--video-controls-btn-border);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 0;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
     color: var(--video-controls-text);
     backdrop-filter: blur(5px);
@@ -535,15 +535,15 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 }
 
 .video-controls .control-btn .icon {
-    font-size: 18px;
+    font-size: 14px;
     color: var(--video-controls-text);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .video-controls .control-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     color: var(--video-controls-text);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
@@ -561,18 +561,18 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 
 .video-controls .progress-container {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
-    flex: 1;
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 8px;
+    width: 100%;
 }
 
 .video-controls .progress-bar {
-    flex: 1;
+    width: 100%;
     height: 6px;
     border-radius: 3px;
-    background: var(--video-controls-progress-bg);
+    background: linear-gradient(to right, #fff 0% 0%, var(--video-controls-progress-bg) 0% 100%);
     outline: none;
     cursor: pointer;
     -webkit-appearance: none;
@@ -582,45 +582,59 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
 .video-controls .progress-bar::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--video-controls-thumb-bg);
+    width: 0px;
+    height: 0px;
+    border-radius: 0;
+    background: transparent;
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--video-controls-thumb-border);
+    box-shadow: none;
+    border: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .video-controls .progress-bar::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--video-controls-thumb-bg);
+    width: 0px;
+    height: 0px;
+    border-radius: 0;
+    background: transparent;
     cursor: pointer;
-    border: 2px solid var(--video-controls-thumb-border);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: none;
+    box-shadow: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.video-controls .time-display {
+.video-controls .time-display-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.video-controls .current-time,
+.video-controls .total-time {
     font-size: 12px;
     color: var(--video-controls-text);
-    min-width: 130px;
-    text-align: center;
     font-weight: 500;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
+.video-controls .current-time {
+    text-align: left;
+}
+
+.video-controls .total-time {
+    text-align: right;
+}
+
 /* Volume button */
 .video-controls #volume-btn {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
 }
 
 .video-controls #volume-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     fill: var(--video-controls-text);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3)) drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
@@ -1062,9 +1076,9 @@ body:not(.vr-mode) .video-controls.fullscreen-controls .control-bar {
         margin: 0 8px;
     }
     
-    .video-controls .time-display {
+    .video-controls .current-time,
+    .video-controls .total-time {
         font-size: 10px;
-        min-width: 110px;
     }
     
     .vr-mode-indicator {
@@ -1839,4 +1853,47 @@ body.mac-platform.vr-mode .toolbar-right-mac .app-title-mac {
 
 .vr-setting-control input[type="checkbox"]:focus {
     box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+/* 让已播放部分为白色 */
+.video-controls .progress-bar {
+    background: linear-gradient(to right, #fff 0% 0%, var(--video-controls-progress-bg) 0% 100%);
+}
+
+.video-controls .progress-bar::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--video-controls-progress-bg);
+}
+.video-controls .progress-bar::-webkit-slider-thumb {
+    position: relative;
+    z-index: 2;
+}
+.video-controls .progress-bar::-webkit-slider-thumb {
+    background: transparent;
+    border: none;
+}
+/* Chrome/Safari: 已播放部分 */
+.video-controls .progress-bar::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #fff 0% var(--progress-value, 0%), var(--video-controls-progress-bg) var(--progress-value, 0%) 100%);
+}
+/* Firefox: 已播放部分 */
+.video-controls .progress-bar::-moz-range-progress {
+    background-color: #fff;
+    height: 6px;
+    border-radius: 3px;
+}
+.video-controls .progress-bar::-moz-range-track {
+    background: var(--video-controls-progress-bg);
+    height: 6px;
+    border-radius: 3px;
+}
+/* IE: 已播放部分 */
+.video-controls .progress-bar::-ms-fill-lower {
+    background: #fff;
+    border-radius: 3px;
+}
+.video-controls .progress-bar::-ms-fill-upper {
+    background: var(--video-controls-progress-bg);
+    border-radius: 3px;
 }
