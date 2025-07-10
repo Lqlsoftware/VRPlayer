@@ -1,6 +1,6 @@
 {
   "name": "vr-player",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A VR video player built with Electron",
   "main": "main.js",
   "scripts": {
