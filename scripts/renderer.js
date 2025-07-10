@@ -1542,12 +1542,10 @@ class VRPlayer {
         if (videoControls) {
             if (this.isVRMode) {
                 videoControls.style.opacity = '0';
-                console.log('VR mode: Set controls to completely hidden (0)');
                 this.controlsVisible = false;
             } else {
                 videoControls.classList.add('hidden');
                 this.controlsVisible = false;
-                console.log('Fullscreen mode: Added hidden class');
             }
         }
 
@@ -1570,8 +1568,8 @@ class VRPlayer {
 
         // Debounce mechanism to avoid frequent timer resets
         const now = Date.now();
-        if (this.lastMouseMoveTime && now - this.lastMouseMoveTime < 200) {
-            return; // Ignore move events within 200ms
+        if (this.lastMouseMoveTime && now - this.lastMouseMoveTime < 100) {
+            return; // Ignore move events within 100ms
         }
         this.lastMouseMoveTime = now;
 
